@@ -1,0 +1,10 @@
+#timeline
+%input#init-data{type: 'hidden', value: raw(@initData.to_s)}
+
+#zoom_controls
+  .zoom_button{data: {zoom: 'in'}}
+    = '-'
+  .zoom_button{data: {zoom: 'out'}}
+    +
+
+#info

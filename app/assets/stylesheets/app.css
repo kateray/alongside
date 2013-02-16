@@ -1,0 +1,40 @@
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  min-width: 500px;
+  margin:0px;
+  text-align: center;
+}
+#zoom_controls {
+  position: fixed;
+  right: 100px;
+  top: 50px;
+  z-index: 100;
+}
+.zoom_button {
+  float:left;
+  background: #cccccc;
+  padding: 5px 15px 5px 15px;
+  margin: 10px;
+  cursor: pointer;
+}
+#paper {
+  position: absolute;
+  z-index: 10;
+  top: 0;
+}
+.month_name {
+  font-size: 90px;
+  float:left;
+  margin-left: 100px;
+  opacity: .05;
+}
+.month_year {
+  font-size: 90px;
+  float:right;
+  margin-right: 100px;
+  opacity: .05;
+}
+#info {
+  position: absolute;
+  z-index: 100;
+}
