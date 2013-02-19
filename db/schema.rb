@@ -25,8 +25,11 @@ ActiveRecord::Schema.define(:version => 20130214223303) do
     t.datetime "last_request_at"
     t.datetime "current_login_at"
     t.string   "current_login_ip"
-    t.datetime "created_at",       :null => false
-    t.datetime "updated_at",       :null => false
+    t.string   "persistence_token"
+    t.string   "overlaps"
+    t.boolean  "secret",            :default => true
+    t.datetime "created_at",                          :null => false
+    t.datetime "updated_at",                          :null => false
   end
 
 end
