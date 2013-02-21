@@ -26,12 +26,14 @@
 #message
 = javascript_include_tag 'app'
 %script{:type => "text/template", :id => "hovercardTemplate"}
-  #place
+  .place
     <%= venue_name %>
-  #date
+  .date
     <%= date %>
     <%= time %>
   <% if (shout) { %>
-  #shout
-    <%= shout %>
+  .shout
+    "<%= shout %>"
   <% } %>
+  .friends
+    <%= friends %>

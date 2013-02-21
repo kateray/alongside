@@ -1,5 +1,6 @@
 Alongside::Application.routes.draw do
-  resources :users
+  resources :users, :path => "u"
+  match '/f/:friend_id' => 'users#friends'
   resources :user_sessions
   match '/auth/:provider/callback', to: 'user_sessions#callback'
   match '/logout', to: 'user_sessions#destroy'

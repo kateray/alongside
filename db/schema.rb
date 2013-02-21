@@ -11,7 +11,35 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130214223303) do
+ActiveRecord::Schema.define(:version => 20130221200155) do
+
+  create_table "checkins", :force => true do |t|
+    t.integer  "user_id"
+    t.string   "venue_name"
+    t.string   "venue_id"
+    t.string   "shout"
+    t.integer  "time"
+    t.string   "foursquare_id"
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
+  end
+
+  create_table "friends", :force => true do |t|
+    t.integer  "user_id"
+    t.string   "foursquare_id"
+    t.string   "url_id"
+    t.string   "name"
+    t.string   "color"
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
+  end
+
+  create_table "overlaps", :force => true do |t|
+    t.integer  "checkin_id"
+    t.integer  "friend_id"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
 
   create_table "user_sessions", :force => true do |t|
     t.datetime "created_at", :null => false

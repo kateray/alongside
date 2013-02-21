@@ -1,3 +1,5 @@
+window.Timeline = JSON.parse($('#init-data').val())
+
 prettifyDate = (date) ->
   months = []
   months[months.length] = "January"
@@ -49,14 +51,14 @@ prettifyTime = (date) ->
 
   return str
 
-drawMonth = (date, calendarHeight, zoom, top)->
+drawMonth = (date, calendarHeight)->
   if date.getMonth()%2 == 0
       color = '#f2f2f2'
     else
       color = '#ffffff'
 
-  prevDate = calendarHeight*1000*zoom+top*1000
-  height = (date - prevDate)/1000/zoom
+  prevDate = calendarHeight*1000*Timeline.zoom+Timeline.top*1000
+  height = (date - prevDate)/1000/Timeline.zoom
   $strip = $('<div class="month">')
   $strip.css('height', height).css('background', color)
   $('#timeline').append($strip)
@@ -72,127 +74,134 @@ drawMonth = (date, calendarHeight, zoom, top)->
 
   return height
 
-drawTimeline = (initData) ->
+drawLine = (friend, index) ->
+  #set x polarity to alternate lines left and right
+  if index%2
+    p = 1
+  else
+    p = -1
+
+  #initial x value 1/2 of x
+  xstart = Timeline.x + Timeline.x/2*p
+  #initial y value off the page
+  ystart = Timeline.length/-10
+
+  yprev = ystart
+  points = []
+  totalLength = 0
+  skrollr = {}
+
+  calculateNewControlPoints = (y, yprev) ->
+    distance = y - yprev
+    y1 = yprev + distance/2
+    x1 = Timeline.x + distance/3*p
+
+    totalLength = totalLength + Math.sqrt(distance*distance + x1*x1)
+    skrollr[y] = totalLength
+
+    return [x1, y1, Timeline.x, y]
+
+  _.each friend['checkins'], (checkin) ->
+    y = (checkin['time'] - Timeline.top)/Timeline.zoom
+    points.push calculateNewControlPoints(y, yprev)
+    yprev = y
+
+  #set final y off the page
+  # y = length + (length - yprev)*2
+  y = Timeline.length + Timeline.length/10
+  points.push calculateNewControlPoints(y, yprev)
+  
+  path = "M" + xstart.toString() + "," + ystart.toString() + "Q" + points.join()
+  line = Timeline.paper.path(path)
+
+  lineLength = line.node.getTotalLength()
+
+  line.attr
+    fill: 'none',
+    stroke: friend['color'],
+    'stroke-width': '4',
+
+  $(line.node).attr('class', 'friend')
+
+  #set up scroll to reveal
+  $(line.node).attr('stroke-dasharray', lineLength)
+  $(line.node).attr('data-0', 'stroke-dashoffset:' + lineLength + ';')
+  _.each skrollr, (k, v) ->
+    # debugger
+    # k = parseInt(k)
+    # v = 
+    # $(line.node).attr('data-' + parseInt(k).toString(), 'stroke-dashoffset:' + parseInt(lineLength - v).toString() + ';')
+  $(line.node).attr('data-end', 'stroke-dashoffset:0;')
+  
+  #show metadata on hover
+  line.hover ( (e) ->
+    @g = @glow({width:2})
+    $('#info')
+      .text(friend.name)
+      .css('left', e.pageX+15).css('top', e.pageY)
+      .css('color', friend.color)
+
+  ), ->
+    @g.remove()
+    $('#info').text ''
+
+  if Timeline.action == 'show'
+    line.click (e) ->
+      if Timeline.single == false
+        Timeline.single = friend.url_id
+        window.history.pushState(null, null, "/f/" + friend.url_id)
+        drawTimeline()
+      else
+        Timeline.single = false
+        window.history.pushState(null, null, "/u/" + Timeline.user_id)
+        drawTimeline()
+
+drawTimeline = ->
   $('#timeline').html('')
 
-  zoom = initData.zoom
-  length = initData.length/zoom
-  top = initData.top
-  single = false
+  Timeline.length = Timeline.full_length/Timeline.zoom
 
   #set up calendar background
-  date = new Date top*1000
+  date = new Date Timeline.top*1000
   date.setDate(1)
   date.setHours(0)
   date.setMinutes(0)
   date.setSeconds(0)
 
   calendarHeight = 0
-  while calendarHeight < length
+  while calendarHeight < Timeline.length
     date.setMonth(date.getMonth()+1)
-    calendarHeight = calendarHeight + drawMonth(date, calendarHeight, zoom, top)
+    calendarHeight = calendarHeight + drawMonth(date, calendarHeight)
 
   #set up svg lines
-  if length > 2000
+  if Timeline.length > 2000
     width = $('body').width()
   else
-    width = length/2
-  x = width/2
+    width = Timeline.length/2
+  Timeline.x = width/2
 
   #set up canvas
   $('#timeline').append('<div id="paper">')
-  paper = Raphael document.getElementById("paper"), width, length
+  Timeline.paper = Raphael document.getElementById("paper"), width, Timeline.length
 
   #draw vertical 'me' line
-  me = paper.path("M" + x.toString() + ",0L" + x.toString() + ","+ (length).toString())
+  me = Timeline.paper.path("M" + Timeline.x.toString() + ",0L" + Timeline.x.toString() + ","+ Timeline.length.toString())
   me.attr('stroke', '#47bad9')
   me.attr('stroke-width', '7')
 
-  _.each initData['lines'], (friend, index) ->
-    #set x polarity to alternate lines left and right
-    if index%2
-      p = 1
-    else
-      p = -1
-
-    #initial x value 1/2 of x
-    xstart = x + x/2*p
-    #initial y value off the page
-    ystart = length/-10
-
-    yprev = ystart
-    points = []
-    totalLength = 0
-    skrollr = {}
-
-    calculateNewControlPoints = (y, yprev) ->
-      distance = y - yprev
-      y1 = yprev + distance/2
-      x1 = x + distance/3*p
-
-      totalLength = totalLength + Math.sqrt(distance*distance + x1*x1)
-      skrollr[y] = totalLength
-
-      return [x1, y1, x, y]
-
-    _.each friend['time'], (time) ->
-      y = (time - top)/zoom
-      points.push calculateNewControlPoints(y, yprev)
-      yprev = y
-
-    #set final y off the page
-    # y = length + (length - yprev)*2
-    y = length + length/10
-    points.push calculateNewControlPoints(y, yprev)
-    
-    path = "M" + xstart.toString() + "," + ystart.toString() + "Q" + points.join()
-    line = paper.path(path)
-
-    lineLength = line.node.getTotalLength()
-
-    line.attr
-      fill: 'none',
-      stroke: friend['color'],
-      'stroke-width': '4',
-
-    $(line.node).attr('class', 'friend')
-
-    #set up scroll to reveal
-    $(line.node).attr('stroke-dasharray', lineLength)
-    $(line.node).attr('data-0', 'stroke-dashoffset:' + lineLength + ';')
-    _.each skrollr, (k, v) ->
-      # debugger
-      # k = parseInt(k)
-      # v = 
-      # $(line.node).attr('data-' + parseInt(k).toString(), 'stroke-dashoffset:' + parseInt(lineLength - v).toString() + ';')
-    $(line.node).attr('data-end', 'stroke-dashoffset:0;')
-    
-    #show metadata on hover
-    line.hover ( (e) ->
-      @g = @glow({width:2})
-      $('#info')
-        .text(friend.name)
-        .css('left', e.pageX+15).css('top', e.pageY)
-        .css('color', friend.color)
-
-    ), ->
-      @g.remove()
-      $('#info').text ''
-
-    line.click (e) ->
-      if single == false
-        single = true
-        $('.friend').hide()
-        $(line.node).show()
-      else
-        single = false
-        $('.friend').show()
+  if Timeline.single
+    line = _.where(Timeline.lines, {url_id : Timeline.single})[0]
+    drawLine line, 1
+  else
+    _.each Timeline['lines'], (friend, index) ->
+      drawLine(friend, index)
 
   #set up overlap points
-  # hovercard_template = '<div id="place"><%= venue_name %></div><div id="date"><%= date %></div><div id="time"><%= time %></div><div id="shout"><%= shout %></div>'
-  _.each initData['points'], (point) ->
-    y = (point.time - top)/zoom
-    circle = paper.circle(x, y, 6)
+  _.each Timeline['points'], (point) ->
+    if Timeline.single && _.where(point.friends, {url_id : Timeline.single}).length == 0
+      return
+    y = (point.time - Timeline.top)/Timeline.zoom
+    circle = Timeline.paper.circle(Timeline.x, y, 6)
     circle.attr({fill: '#474747'})
     circle.attr('stroke-width', 0)
     $(circle.node).attr('class', 'overlap')
@@ -204,12 +213,18 @@ drawTimeline = (initData) ->
       @g = @glow({width:3})
       date = new Date(point.time*1000)
       $('#hovercard').css('left', e.pageX+15).css('top', e.pageY)
-        # .text(prettifyDate(date) + ' ' + prettifyTime(date) + ' ' + point.venue_name)
+      friends = ''
+      _.each point.friends, (f, index) ->
+        if index == 0
+          friends = friends + f.name
+        else
+          friends = friends + ', ' + f.name
       template = _.template $('#hovercardTemplate').html(), {
         venue_name: point.venue_name,
         date: prettifyDate(date),
         time: prettifyTime(date),
-        shout: point.shout }
+        shout: point.shout,
+        friends: friends}
       $('#hovercard').html(template).show()
 
     ), ->
@@ -227,26 +242,24 @@ showLockImage = (secret) ->
     $('.locked').hide()
 
 $(document).ready ->
-  initData = JSON.parse($('#init-data').val())
+  showLockImage Timeline.secret
 
-  showLockImage initData.secret
-
-  drawTimeline initData
+  drawTimeline()
 
   $('.zoom_button').click ->
     if $(this).data('zoom') == 'in'
-      initData.zoom = initData.zoom*2
+      Timeline.zoom = Timeline.zoom*2
     else
-      initData.zoom = initData.zoom/2
-    drawTimeline initData
+      Timeline.zoom = Timeline.zoom/2
+    drawTimeline()
 
   $('#toggle_privacy').click ->
-    val = !initData.secret
+    val = !Timeline.secret
     $.ajax
       type: "PUT"
       url: "/users/privacy"
       data: {user: {secret: val}}
       success: (data) =>
-        initData.secret = val
-        showLockImage initData.secret
+        Timeline.secret = val
+        showLockImage Timeline.secret
         $('#message').html data

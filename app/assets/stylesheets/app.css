@@ -50,19 +50,20 @@ body {
   border-radius: 10px;
   position: absolute;
   z-index: 100;
+  max-width: 300px;
 }
-#hovercard {
-  text-align: center;
-}
-#hovercard #place {
+
+.place {
+  font-weight: bold;
   font-size: 20px;
 }
 
-#hovercard #time {
-  float: left;
-  font-size: 10px;
+.shout {
+  margin-top: 8px;
+  margin-bottom: 8px;
+  font-style: italic;
 }
 
-#hovercard #shout {
-  font-style: italic;
+.friends {
+  font-size: 12px;
 }
