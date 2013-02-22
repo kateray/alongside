@@ -77,27 +77,23 @@ drawMonth = (date, calendarHeight)->
 drawLine = (friend, index) ->
   #set x polarity to alternate lines left and right
   if index%2
-    p = 1
-  else
     p = -1
+  else
+    p = 1
 
   #initial x value 1/2 of x
   xstart = Timeline.x + Timeline.x/2*p
   #initial y value off the page
-  ystart = Timeline.length/-10
+  # ystart = Timeline.length/-10
+  ystart = 0
 
   yprev = ystart
   points = []
-  totalLength = 0
-  skrollr = {}
 
   calculateNewControlPoints = (y, yprev) ->
     distance = y - yprev
     y1 = yprev + distance/2
     x1 = Timeline.x + distance/3*p
-
-    totalLength = totalLength + Math.sqrt(distance*distance + x1*x1)
-    skrollr[y] = totalLength
 
     return [x1, y1, Timeline.x, y]
 
@@ -108,7 +104,8 @@ drawLine = (friend, index) ->
 
   #set final y off the page
   # y = length + (length - yprev)*2
-  y = Timeline.length + Timeline.length/10
+  # y = Timeline.length + Timeline.length/10
+  y = Timeline.length
   points.push calculateNewControlPoints(y, yprev)
   
   path = "M" + xstart.toString() + "," + ystart.toString() + "Q" + points.join()
@@ -122,16 +119,17 @@ drawLine = (friend, index) ->
     'stroke-width': '4',
 
   $(line.node).attr('class', 'friend')
-
   #set up scroll to reveal
   $(line.node).attr('stroke-dasharray', lineLength)
   $(line.node).attr('data-0', 'stroke-dashoffset:' + lineLength + ';')
-  _.each skrollr, (k, v) ->
-    # debugger
-    # k = parseInt(k)
-    # v = 
-    # $(line.node).attr('data-' + parseInt(k).toString(), 'stroke-dashoffset:' + parseInt(lineLength - v).toString() + ';')
-  $(line.node).attr('data-end', 'stroke-dashoffset:0;')
+
+  num = lineLength/30
+  i = 0
+  while i < 30
+    pt = parseInt(line.getPointAtLength(i*num).y)
+    l = lineLength - (i*num) - 300
+    $(line.node).attr('data-' + pt.toString(), 'stroke-dashoffset:' + l.toString() + ';')
+    i++
   
   #show metadata on hover
   line.hover ( (e) ->
@@ -191,7 +189,8 @@ drawTimeline = ->
 
   if Timeline.single
     line = _.where(Timeline.lines, {url_id : Timeline.single})[0]
-    drawLine line, 1
+    index = _.indexOf(Timeline.lines, line)
+    drawLine line, index
   else
     _.each Timeline['lines'], (friend, index) ->
       drawLine(friend, index)
@@ -253,7 +252,10 @@ $(document).ready ->
       Timeline.zoom = Timeline.zoom/2
     drawTimeline()
 
-  $('#toggle_privacy').click ->
+  $('body').click ->
+    $('.message').hide()
+
+  $('#toggle_privacy').click (e) ->
     val = !Timeline.secret
     $.ajax
       type: "PUT"
@@ -262,4 +264,7 @@ $(document).ready ->
       success: (data) =>
         Timeline.secret = val
         showLockImage Timeline.secret
-        $('#message').html data
+        if val == true
+          $('#public_message').show().css('left', e.pageX+15).css('top', e.pageY)
+        else
+          $('#private_message').show().css('left', e.pageX+15).css('top', e.pageY)

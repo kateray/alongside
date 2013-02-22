@@ -4,6 +4,30 @@ body {
   margin:0px;
   text-align: center;
 }
+/* TODO: use compass or otherwise make it work for other browsers */
+#nav {
+  height: 30px;
+  width: 100%;
+  background: #dcdcdc;
+  position: fixed;
+  font-size: 14px;
+  z-index: 100;
+  opacity: 0.2;
+  -webkit-transition-property:opacity;
+  -webkit-transition-duration: 700ms;
+  -webkit-transition-timing-function: linear;
+}
+
+#nav:hover {
+  opacity: 1;
+}
+
+.nav_button {
+  float: right;
+  margin-right: 50px;
+  cursor: pointer;
+}
+
 .friend:hover {
   cursor: pointer;
 }
@@ -12,8 +36,8 @@ body {
 }
 #controls_container {
   position: fixed;
-  right: 50px;
-  top: 30px;
+  right: 90px;
+  top: 60px;
   z-index: 100;
 }
 .control {
@@ -51,6 +75,15 @@ body {
   position: absolute;
   z-index: 100;
   max-width: 300px;
+}
+
+.message {
+  display: none;
+  position: fixed;
+  background: #cccccc;
+  z-index: 100;
+  padding: 8px;
+  border-radius: 10px;
 }
 
 .place {

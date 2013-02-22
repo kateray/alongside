@@ -2,7 +2,7 @@ class Friend < ActiveRecord::Base
   # attr_accessible :title, :body
   belongs_to :user
   has_many :overlaps
-  has_many :checkins, through: :overlaps, :order => 'time ASC'
+  has_many :checkins, through: :overlaps
 
   before_create :default_values
 

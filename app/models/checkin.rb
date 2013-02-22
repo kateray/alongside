@@ -1,5 +1,6 @@
 class Checkin < ActiveRecord::Base
-  # attr_accessible :title, :body
+  default_scope :order => "time ASC"
+
   belongs_to :user
   has_many :overlaps
   has_many :friends, through: :overlaps

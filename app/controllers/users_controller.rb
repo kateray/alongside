@@ -24,8 +24,8 @@ class UsersController < ApplicationController
     @initData['zoom'] = 1000
     @initData['top'] = top
     @initData['full_length'] = length
-    @initData['lines'] = @user.friends
-    @initData['points'] = @user.checkins
+    @initData['lines'] = @user.friends.includes(:checkins).order('checkins.time ASC')
+    @initData['points'] = @user.checkins.includes(:friends)
     @initData['secret'] = @user.secret
     @initData['single'] = false
     @initData['user_id'] = @user.id

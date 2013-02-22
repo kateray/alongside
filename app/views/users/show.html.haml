@@ -1,3 +1,22 @@
+- if current_user
+  #nav
+    %a{:href => '/logout', :class => 'nav_button'}
+      %img{:src => '/assets/exit.png'}
+    - if params[:action] == 'friends'
+      %a{:href => '/u/' + @user.id.to_s, :class => 'nav_button'}
+        = render '/svg/home'
+    - elsif params[:action] == 'show' && current_user == @user
+      %a{:href => '/loading', :class => 'nav_button'}
+        = render '/svg/refresh'
+      .nav_button#toggle_privacy
+        .locked
+          = render '/svg/lock'
+        .unlocked
+          = render '/svg/unlock'
+- else
+  %a{:href => '/auth/foursquare'}
+    %img{:src => '/assets/foursquare-button.png'}
+
 #timeline
 %input#init-data{type: 'hidden', value: raw(@initData.to_s)}
 
@@ -6,24 +25,14 @@
     = '-'
   .control.zoom_button{data: {zoom: 'out'}}
     +
-  - if current_user
-    - if current_user == @user
-      .control#toggle_privacy
-        .locked
-          = render '/svg/lock'
-        .unlocked
-          = render '/svg/unlock'
-    %a{:href => '/loading', :class => 'control'}
-      = render '/svg/refresh'
-    %a{:href => '/logout', :class => 'control'}
-      logout
-  - else
-    %a{:href => '/auth/foursquare'}
-      %img{:src => '/assets/foursquare-button.png'}
-
+    
 #info
 #hovercard{:style => 'display:none;'}
-#message
+.message#private_message
+  This page is now private
+.message#public_message
+  This page is now public. Share it!
+  = render '/extras/twitter_button'
 = javascript_include_tag 'app'
 %script{:type => "text/template", :id => "hovercardTemplate"}
   .place
