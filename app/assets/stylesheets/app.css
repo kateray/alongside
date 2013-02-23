@@ -112,6 +112,8 @@ a {
 .message {
   display: none;
   position: fixed;
+  top: 20px;
+  right: 50px;
   background: #cccccc;
   z-index: 100;
   padding: 8px;

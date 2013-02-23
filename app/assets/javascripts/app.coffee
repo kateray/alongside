@@ -248,6 +248,7 @@ showLockImage = (secret) ->
 $(document).ready ->
   unless $('#meta').data('page') == 'show'
     return
+  $('.twitter-share-button').attr 'data-url', window.location.origin + window.location.pathname
   window.Timeline = JSON.parse($('#init-data').val())
   Timeline.offset = 500
   Timeline.zoom = parseUri(window.location.href).queryKey['zoom'] || 1000
@@ -278,6 +279,6 @@ $(document).ready ->
         showLockImage Timeline.secret
         $('.message').hide()
         if val == true
-          $('#public_message.message').show().css('left', e.pageX+15).css('top', e.pageY)
+          $('#private_message.message').show()
         else
-          $('#private_message.message').show().css('left', e.pageX+15).css('top', e.pageY)
+          $('#public_message.message').show()
