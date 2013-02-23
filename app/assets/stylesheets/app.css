@@ -4,7 +4,6 @@ html, body {
   height: 100%;
   margin:0px;
   text-align: center;
-  overflow: auto;
 }
 /* TODO: use compass or otherwise make it work for other browsers */
 #nav {

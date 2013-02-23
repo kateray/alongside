@@ -70,6 +70,7 @@ drawMonth = (date, calendarHeight)->
   $month_year.text date.getFullYear()
   $strip.append($month_year)
 
+  console.log height
   return height
 
 drawLine = (friend, index) ->
@@ -134,10 +135,12 @@ drawLine = (friend, index) ->
       if Timeline.single == false
         Timeline.single = friend.url_id
         window.history.pushState(null, null, "/f/" + friend.url_id)
+        $('#toggle_privacy').hide()
         drawTimeline()
       else
         Timeline.single = false
         window.history.pushState(null, null, "/u/" + Timeline.user_id)
+        $('#toggle_privacy').show()
         drawTimeline()
 
 setupSkrollrMetadata = (line) ->
@@ -172,7 +175,8 @@ drawTimeline = ->
   while calendarHeight < Timeline.length
     date.setMonth(date.getMonth()+1)
     calendarHeight = calendarHeight + drawMonth(date, calendarHeight)
-
+  $('#future').css 'background', $('.month:last').css('background')
+  
   #set up svg lines
   if Timeline.length > 2000
     width = $('body').width()
