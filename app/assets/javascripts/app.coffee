@@ -277,6 +277,6 @@ $(document).ready ->
         Timeline.secret = val
         showLockImage Timeline.secret
         if val == true
-          $('#public_message').show().css('left', e.pageX+15).css('top', e.pageY)
+          $('#public_message.message').show().css('left', e.pageX+15).css('top', e.pageY)
         else
-          $('#private_message').show().css('left', e.pageX+15).css('top', e.pageY)
+          $('#private_message.message').show().css('left', e.pageX+15).css('top', e.pageY)
