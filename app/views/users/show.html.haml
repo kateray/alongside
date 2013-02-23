@@ -1,22 +1,4 @@
 #meta{:data => {:page => 'show'}}
-- if current_user
-  #nav
-    %a{:href => '/logout', :class => 'nav_button'}
-      %img{:src => '/assets/exit.png'}
-    - if params[:action] == 'friends'
-      %a{:href => '/u/' + @user.id.to_s, :class => 'nav_button'}
-        = render '/svg/home'
-    - elsif params[:action] == 'show' && current_user == @user
-      %a{:href => '/loading', :class => 'nav_button'}
-        = render '/svg/refresh'
-      .nav_button#toggle_privacy
-        .locked
-          = render '/svg/lock'
-        .unlocked
-          = render '/svg/unlock'
-- else
-  %a{:href => '/auth/foursquare'}
-    %img{:src => '/assets/foursquare-button.png'}
 
 #timeline
 #future

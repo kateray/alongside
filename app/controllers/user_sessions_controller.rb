@@ -10,15 +10,7 @@ class UserSessionsController < ApplicationController
     user = User.find_or_create(auth_hash)
     UserSession.create(user, true)
 
-    puts '*'*80
-    puts user.id
-    if UserSession.find
-      puts 'yes'
-    else
-      puts 'no'
-    end
-
-    if user.overlaps == nil
+    if user.checkins.blank?
       redirect_to '/loading'
     else
       redirect_to user

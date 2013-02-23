@@ -82,8 +82,9 @@ drawLine = (friend, index) ->
   #initial x value 1/2 of x
   xstart = Timeline.x + Timeline.x/2*p
   #initial y value off the page
-  # ystart = Timeline.length/-10
-  ystart = 0
+  #TODO surely this can be refactored
+  first = (friend['checkins'][0]['time'] - Timeline.top)/Timeline.zoom + Timeline.offset
+  ystart = -1*first
 
   yprev = ystart
   points = []
@@ -101,32 +102,20 @@ drawLine = (friend, index) ->
     yprev = y
 
   #set final y off the page
-  # y = Timeline.length + (Timeline.length - yprev)*2
-  y = Timeline.length + Timeline.length/10
-  # y = Timeline.length
+  y = Timeline.length + (Timeline.length - yprev)*2
+
   points.push calculateNewControlPoints(y, yprev)
   
   path = "M" + xstart.toString() + "," + ystart.toString() + "Q" + points.join()
   line = Timeline.paper.path(path)
 
-  lineLength = line.node.getTotalLength()
-
   line.attr
-    fill: 'none',
     stroke: friend['color'],
     'stroke-width': '4',
 
   $(line.node).attr('class', 'friend')
-  #set up scroll to reveal
-  $(line.node).attr('stroke-dasharray', lineLength)
-  $(line.node).attr('data-0', 'stroke-dashoffset:' + lineLength + ';')
 
-  num = 500
-  while num < lineLength
-    pt = parseInt(line.getPointAtLength(num).y)
-    l = lineLength - num - 400
-    $(line.node).attr('data-' + pt.toString(), 'stroke-dashoffset:' + l.toString() + ';')
-    num = num + 500
+  setupSkrollrMetadata line
   
   #show metadata on hover
   line.hover ( (e) ->
@@ -151,10 +140,23 @@ drawLine = (friend, index) ->
         window.history.pushState(null, null, "/u/" + Timeline.user_id)
         drawTimeline()
 
+setupSkrollrMetadata = (line) ->
+  lineLength = line.node.getTotalLength()
+
+  $(line.node).attr('stroke-dasharray', lineLength)
+  $(line.node).attr('data-0', 'stroke-dashoffset:' + lineLength + ';')
+
+  num = 500
+  while num < lineLength + 500
+    pt = parseInt(line.getPointAtLength(num).y)
+    l = lineLength - num - 400
+    $(line.node).attr('data-' + pt.toString(), 'stroke-dashoffset:' + l.toString() + ';')
+    num = num + 500
+
 drawTimeline = ->
   $('#timeline').html('')
 
-  Timeline.length = Timeline.full_length/Timeline.zoom
+  Timeline.length = Timeline.full_length/Timeline.zoom + Timeline.offset
 
   #set up calendar background
   date = new Date Timeline.top*1000
@@ -167,7 +169,7 @@ drawTimeline = ->
   $strip = $('<div class="month">')
   $strip.css('height', Timeline.offset).css('background', 'white')
   $('#timeline').append($strip)
-  while calendarHeight < Timeline.length + Timeline.offset
+  while calendarHeight < Timeline.length
     date.setMonth(date.getMonth()+1)
     calendarHeight = calendarHeight + drawMonth(date, calendarHeight)
 
@@ -180,22 +182,15 @@ drawTimeline = ->
 
   #set up canvas
   $('#timeline').append('<div id="paper">')
-  Timeline.paper = Raphael document.getElementById("paper"), width, Timeline.length+Timeline.offset
+  Timeline.paper = Raphael document.getElementById("paper"), width, Timeline.length
 
   #draw vertical 'me' line
-  final = Timeline.length + Timeline.offset
-  me = Timeline.paper.path("M" + Timeline.x.toString() + ",0L" + Timeline.x.toString() + ","+ final.toString())
+  me = Timeline.paper.path("M" + Timeline.x.toString() + ",0L" + Timeline.x.toString() + ","+ Timeline.length.toString())
   me.attr('stroke', '#47bad9')
   me.attr('stroke-width', '7')
-  $(me.node).attr('stroke-dasharray', final)
-  $(me.node).attr('data-0', 'stroke-dashoffset:' + final + ';')
 
-  num = 500
-  while num < final
-    pt = parseInt(me.getPointAtLength(num).y)
-    l = Timeline.length - num - 400
-    $(me.node).attr('data-' + pt.toString(), 'stroke-dashoffset:' + l.toString() + ';')
-    num = num + 500
+
+  setupSkrollrMetadata me
 
   if Timeline.single
     line = _.where(Timeline.lines, {url_id : Timeline.single})[0]
@@ -255,6 +250,7 @@ $(document).ready ->
     return
   window.Timeline = JSON.parse($('#init-data').val())
   Timeline.offset = 500
+  Timeline.zoom = parseUri(window.location.href).queryKey['zoom'] || 1000
 
   showLockImage Timeline.secret
 
@@ -265,6 +261,7 @@ $(document).ready ->
       Timeline.zoom = Timeline.zoom*2
     else
       Timeline.zoom = Timeline.zoom/2
+    window.history.pushState(null, null, window.location.origin + window.location.pathname + '?zoom=' + Timeline.zoom)
     drawTimeline()
 
   $('body').click ->

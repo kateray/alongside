@@ -5,8 +5,11 @@
       alongside
     = stylesheet_link_tag "application", :media => "all"
     = csrf_meta_tag
-    = render "extras/google_analytics"
+    / = render "extras/google_analytics"
 
   %body
+    - if params[:action] == 'show' || params[:action] == 'friends'
+      = render "layouts/nav"
+
     = yield
     = javascript_include_tag "application"

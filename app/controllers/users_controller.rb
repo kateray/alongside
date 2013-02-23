@@ -6,6 +6,8 @@ class UsersController < ApplicationController
 
   before_filter :login_required, except: [:show, :friends]
 
+  # caches_action [:show, :friends], :layout => false
+
   def loading
   end
 
@@ -22,7 +24,6 @@ class UsersController < ApplicationController
     length = @user.checkins.last.time - top
 
     @initData = {}
-    @initData['zoom'] = 1000
     @initData['top'] = top
     @initData['full_length'] = length
     @initData['lines'] = @user.friends.includes(:checkins).order('checkins.time ASC')
@@ -43,7 +44,6 @@ class UsersController < ApplicationController
     length = @friend.checkins.last.time - top
 
     @initData = {}
-    @initData['zoom'] = 1000
     @initData['top'] = top
     @initData['full_length'] = length
     @initData['lines'] = [@friend]

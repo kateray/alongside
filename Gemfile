@@ -30,6 +30,7 @@ gem 'authlogic'
 gem 'omniauth'
 gem 'omniauth-foursquare'
 gem 'httparty'
+gem 'thin'
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
