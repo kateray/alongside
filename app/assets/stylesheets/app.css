@@ -29,6 +29,7 @@ a {
 }
 
 .nav_button {
+  font-size: 20px;
   float: right;
   margin-right: 50px;
   cursor: pointer;

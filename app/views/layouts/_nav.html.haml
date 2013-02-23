@@ -1,5 +1,5 @@
-- if current_user
-  #nav
+#nav
+  - if current_user
     %a{:href => '/logout', :class => 'nav_button'}
       %img{:src => '/assets/exit.png'}
     - if params[:action] == 'friends'
@@ -13,6 +13,8 @@
           = render '/svg/lock'
         .unlocked
           = render '/svg/unlock'
-- else
-  %a{:href => '/auth/foursquare'}
-    %img{:src => '/assets/foursquare-button.png'}
+  - else
+    %a{:href => '/auth/foursquare', :class => 'nav_button'}
+      %img{:src => '/assets/foursquare-button.png'}
+    .nav_button
+      Think this page is awesome and want one of your own?
