@@ -264,7 +264,7 @@ $(document).ready ->
     window.history.pushState(null, null, window.location.origin + window.location.pathname + '?zoom=' + Timeline.zoom)
     drawTimeline()
 
-  $('body').click ->
+  $('#timeline').click ->
     $('.message').hide()
 
   $('#toggle_privacy').click (e) ->
@@ -276,6 +276,7 @@ $(document).ready ->
       success: (data) =>
         Timeline.secret = val
         showLockImage Timeline.secret
+        $('.message').hide()
         if val == true
           $('#public_message.message').show().css('left', e.pageX+15).css('top', e.pageY)
         else
