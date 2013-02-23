@@ -1,3 +1,4 @@
+#meta{:data => {:page => 'show'}}
 - if current_user
   #nav
     %a{:href => '/logout', :class => 'nav_button'}
@@ -18,6 +19,7 @@
     %img{:src => '/assets/foursquare-button.png'}
 
 #timeline
+#future
 %input#init-data{type: 'hidden', value: raw(@initData.to_s)}
 
 #controls_container
@@ -33,7 +35,6 @@
 .message#public_message
   This page is now public. Share it!
   = render '/extras/twitter_button'
-= javascript_include_tag 'app'
 %script{:type => "text/template", :id => "hovercardTemplate"}
   .place
     <%= venue_name %>

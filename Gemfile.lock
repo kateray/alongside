@@ -69,7 +69,7 @@ GEM
     multi_json (1.6.1)
     multi_xml (0.5.3)
     multipart-post (1.1.5)
-    oauth2 (0.8.0)
+    oauth2 (0.8.1)
       faraday (~> 0.8)
       httpauth (~> 0.1)
       jwt (~> 0.1.4)
@@ -84,6 +84,7 @@ GEM
     omniauth-oauth2 (1.1.1)
       oauth2 (~> 0.8.0)
       omniauth (~> 1.0)
+    pg (0.14.1)
     polyglot (0.3.3)
     rack (1.4.5)
     rack-cache (1.2)
@@ -110,7 +111,7 @@ GEM
     rake (10.0.3)
     rdoc (3.12.1)
       json (~> 1.4)
-    sass (3.2.5)
+    sass (3.2.6)
     sass-rails (3.2.6)
       railties (~> 3.2.0)
       sass (>= 3.1.10)
@@ -142,6 +143,7 @@ DEPENDENCIES
   jquery-rails
   omniauth
   omniauth-foursquare
+  pg
   rails (= 3.2.11)
   sass-rails (~> 3.2.3)
   sqlite3

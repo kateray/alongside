@@ -10,9 +10,10 @@ class UsersController < ApplicationController
   end
 
   def get_overlaps
-    current_user.get_overlaps()
+    x = params[:x]
+    current_user.get_overlaps(x)
 
-    render :json => {url: '/users/' + current_user.id.to_s}
+    render :json => {url: '/u/' + current_user.id.to_s}
 
   end
 

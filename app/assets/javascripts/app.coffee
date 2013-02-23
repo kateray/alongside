@@ -1,5 +1,3 @@
-window.Timeline = JSON.parse($('#init-data').val())
-
 prettifyDate = (date) ->
   months = []
   months[months.length] = "January"
@@ -98,14 +96,14 @@ drawLine = (friend, index) ->
     return [x1, y1, Timeline.x, y]
 
   _.each friend['checkins'], (checkin) ->
-    y = (checkin['time'] - Timeline.top)/Timeline.zoom
+    y = (checkin['time'] - Timeline.top)/Timeline.zoom + Timeline.offset
     points.push calculateNewControlPoints(y, yprev)
     yprev = y
 
   #set final y off the page
-  # y = length + (length - yprev)*2
-  # y = Timeline.length + Timeline.length/10
-  y = Timeline.length
+  # y = Timeline.length + (Timeline.length - yprev)*2
+  y = Timeline.length + Timeline.length/10
+  # y = Timeline.length
   points.push calculateNewControlPoints(y, yprev)
   
   path = "M" + xstart.toString() + "," + ystart.toString() + "Q" + points.join()
@@ -123,13 +121,12 @@ drawLine = (friend, index) ->
   $(line.node).attr('stroke-dasharray', lineLength)
   $(line.node).attr('data-0', 'stroke-dashoffset:' + lineLength + ';')
 
-  num = lineLength/30
-  i = 0
-  while i < 30
-    pt = parseInt(line.getPointAtLength(i*num).y)
-    l = lineLength - (i*num) - 300
+  num = 500
+  while num < lineLength
+    pt = parseInt(line.getPointAtLength(num).y)
+    l = lineLength - num - 400
     $(line.node).attr('data-' + pt.toString(), 'stroke-dashoffset:' + l.toString() + ';')
-    i++
+    num = num + 500
   
   #show metadata on hover
   line.hover ( (e) ->
@@ -167,7 +164,10 @@ drawTimeline = ->
   date.setSeconds(0)
 
   calendarHeight = 0
-  while calendarHeight < Timeline.length
+  $strip = $('<div class="month">')
+  $strip.css('height', Timeline.offset).css('background', 'white')
+  $('#timeline').append($strip)
+  while calendarHeight < Timeline.length + Timeline.offset
     date.setMonth(date.getMonth()+1)
     calendarHeight = calendarHeight + drawMonth(date, calendarHeight)
 
@@ -180,12 +180,22 @@ drawTimeline = ->
 
   #set up canvas
   $('#timeline').append('<div id="paper">')
-  Timeline.paper = Raphael document.getElementById("paper"), width, Timeline.length
+  Timeline.paper = Raphael document.getElementById("paper"), width, Timeline.length+Timeline.offset
 
   #draw vertical 'me' line
-  me = Timeline.paper.path("M" + Timeline.x.toString() + ",0L" + Timeline.x.toString() + ","+ Timeline.length.toString())
+  final = Timeline.length + Timeline.offset
+  me = Timeline.paper.path("M" + Timeline.x.toString() + ",0L" + Timeline.x.toString() + ","+ final.toString())
   me.attr('stroke', '#47bad9')
   me.attr('stroke-width', '7')
+  $(me.node).attr('stroke-dasharray', final)
+  $(me.node).attr('data-0', 'stroke-dashoffset:' + final + ';')
+
+  num = 500
+  while num < final
+    pt = parseInt(me.getPointAtLength(num).y)
+    l = Timeline.length - num - 400
+    $(me.node).attr('data-' + pt.toString(), 'stroke-dashoffset:' + l.toString() + ';')
+    num = num + 500
 
   if Timeline.single
     line = _.where(Timeline.lines, {url_id : Timeline.single})[0]
@@ -199,7 +209,7 @@ drawTimeline = ->
   _.each Timeline['points'], (point) ->
     if Timeline.single && _.where(point.friends, {url_id : Timeline.single}).length == 0
       return
-    y = (point.time - Timeline.top)/Timeline.zoom
+    y = (point.time - Timeline.top)/Timeline.zoom + Timeline.offset
     circle = Timeline.paper.circle(Timeline.x, y, 6)
     circle.attr({fill: '#474747'})
     circle.attr('stroke-width', 0)
@@ -241,6 +251,11 @@ showLockImage = (secret) ->
     $('.locked').hide()
 
 $(document).ready ->
+  unless $('#meta').data('page') == 'show'
+    return
+  window.Timeline = JSON.parse($('#init-data').val())
+  Timeline.offset = 500
+
   showLockImage Timeline.secret
 
   drawTimeline()

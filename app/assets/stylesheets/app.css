@@ -1,6 +1,8 @@
 body {
   font-family: Helvetica, Arial, sans-serif;
   min-width: 500px;
+  min-height: 500px;
+  height: 100%;
   margin:0px;
   text-align: center;
 }
@@ -51,6 +53,22 @@ body {
   position: absolute;
   z-index: 10;
   top: 0;
+}
+#home {
+  width: 100%;
+  min-height: 900px;
+  height: 100%;
+  background: url('/assets/background.jpg') no-repeat center center fixed; 
+  -webkit-background-size: cover;
+}
+.headline {
+  position: fixed;
+  font-size: 30px;
+  top: 70%;
+  left: 40%;
+}
+#future {
+  height: 500px;
 }
 .month_name {
   font-size: 90px;

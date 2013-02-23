@@ -1,2 +1,3 @@
+#meta{:data => {:page => 'loading'}}
 HEY
-= javascript_include_tag 'loading'
+%input#init-data{type: 'hidden', value: raw(@initData.to_s)}
