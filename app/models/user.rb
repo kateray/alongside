@@ -44,7 +44,9 @@ class User < ActiveRecord::Base
             end
             checkins << checkin
             i['overlaps']['items'].each do |item|
-              unless friends.find{|f| f.foursquare_id == item['user']['id'].to_s}
+              if friends.find{|f| f.foursquare_id == item['user']['id'].to_s}
+                friend = friends.find{|f| f.foursquare_id == item['user']['id'].to_s}
+              else
                 friend = Friend.create! do |f|
                   color = colors[0]
                   f.color = color
