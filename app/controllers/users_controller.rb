@@ -37,7 +37,7 @@ class UsersController < ApplicationController
   end
 
   def friends
-    @friend = Friend.find_by_url_id(params[:friend_id])
+    @friend = Friend.includes(:checkins).find_by_url_id(params[:friend_id])
     @user = @friend.user
 
     top = @friend.checkins.first.time
@@ -47,7 +47,7 @@ class UsersController < ApplicationController
     @initData['top'] = top
     @initData['full_length'] = length
     @initData['lines'] = [@friend]
-    @initData['points'] = @friend.checkins
+    @initData['points'] = @friend.checkins.includes(:friends)
     @initData['secret'] = @user.secret
     @initData['single'] = @friend.url_id
     @initData['user_id'] = @user.id
