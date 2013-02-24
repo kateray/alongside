@@ -102,7 +102,7 @@ drawLine = (friend, index) ->
     yprev = y
 
   # console.log (Timeline.length - yprev)*Timeline.zoom > 100000
-  if friend['checkins'].length > 10 && (Timeline.length - yprev)*Timeline.zoom > 100000
+  if friend['checkins'].length > 10 && (Timeline.length - yprev)*Timeline.zoom > 1000000
     console.log yprev
     Timeline.missed.push(friend)
 
