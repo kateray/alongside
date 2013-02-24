@@ -44,7 +44,7 @@ class User < ActiveRecord::Base
               c.venue_name = i['venue']['name']
             end
             i['overlaps']['items'].each do |item|
-              unless self.friends = friends.find{|f| f.foursquare_id == item['user']['id']}
+              unless friend = self.friends.find{|f| f.foursquare_id == item['user']['id']}
                 friend = Friend.create! do |f|
                   color = colors[0]
                   f.color = color
