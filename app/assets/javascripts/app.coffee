@@ -101,7 +101,6 @@ drawLine = (friend, index) ->
     points.push calculateNewControlPoints(y, yprev)
     yprev = y
 
-  # console.log (Timeline.length - yprev)*Timeline.zoom > 100000
   if friend['checkins'].length > 8 && (Timeline.length - yprev)*Timeline.zoom > 1000000
     Timeline.missed.push(friend)
 
@@ -189,13 +188,13 @@ drawTimeline = ->
 
   #set up canvas
   $('#timeline').append('<div id="paper">')
+
   Timeline.paper = Raphael document.getElementById("paper"), width, Timeline.length
 
   #draw vertical 'me' line
   me = Timeline.paper.path("M" + Timeline.x.toString() + ",0L" + Timeline.x.toString() + ","+ Timeline.length.toString())
   me.attr('stroke', '#47bad9')
   me.attr('stroke-width', '7')
-
 
   setupSkrollrMetadata me
 

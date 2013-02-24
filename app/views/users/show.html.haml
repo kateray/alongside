@@ -1,7 +1,8 @@
 #meta{:data => {:page => 'show'}}
 
 #timeline
-#future
+- if current_user && current_user == @user
+  #future
 %input#init-data{type: 'hidden', value: raw(@initData.to_s)}
 
 #controls_container

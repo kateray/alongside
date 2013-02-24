@@ -39,8 +39,8 @@ class UsersController < ApplicationController
     @friend = Friend.includes(:checkins).find_by_url_id(params[:friend_id])
     @user = @friend.user
 
-    top = @friend.checkins.first.time
-    length = @friend.checkins.last.time - top
+    top = @friend.checkins.order('time ASC').first.time
+    length = @friend.checkins.order('time ASC').last.time - top
 
     @initData = {}
     @initData['top'] = top
