@@ -28,7 +28,7 @@ class User < ActiveRecord::Base
       offset = num*100
       #TODO - Pretty up url
       options = {:query => {:v => '20130214', :sort => 'newestfirst', :oauth_token => self.atoken, :offset => offset.to_s}}
-      response = HTTParty.get("https://api.foursquare.com/v2/users/#{foursquare_id}/historysearch", options)
+      response = HTTParty.get("https://api.foursquare.com/v2/users/#{foursquare_id.to_s}/historysearch", options)
       response.parsed_response['response']['checkins']['items'].each do |i|
         if i['overlaps']
           unless self.checkins.find{|c| c.foursquare_id == i['id']}

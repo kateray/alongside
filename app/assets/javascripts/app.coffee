@@ -102,8 +102,7 @@ drawLine = (friend, index) ->
     yprev = y
 
   # console.log (Timeline.length - yprev)*Timeline.zoom > 100000
-  if friend['checkins'].length > 10 && (Timeline.length - yprev)*Timeline.zoom > 1000000
-    console.log yprev
+  if friend['checkins'].length > 8 && (Timeline.length - yprev)*Timeline.zoom > 1000000
     Timeline.missed.push(friend)
 
   #set final y off the page
@@ -243,11 +242,11 @@ drawTimeline = ->
       @g.remove()
       $('#hovercard').hide()
 
-  friend = Timeline.missed[Math.floor(Math.random()*Timeline.missed.length)]
-  console.log Timeline.missed
-  $('#future')
-    .css('color', friend.color)
-    .text "Friends are important. Why don't you give " + friend.name + " a call?"
+  unless Timeline.missed.length == 0
+    friend = Timeline.missed[Math.floor(Math.random()*Timeline.missed.length)]
+    $('#future')
+      .css('color', friend.color)
+      .text "Friends are important. Why don't you give " + friend.name + " a call?"
   skrollr.init forceHeight: false
 
 showLockImage = (secret) ->
