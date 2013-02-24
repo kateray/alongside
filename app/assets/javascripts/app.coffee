@@ -70,7 +70,6 @@ drawMonth = (date, calendarHeight)->
   $month_year.text date.getFullYear()
   $strip.append($month_year)
 
-  console.log height
   return height
 
 drawLine = (friend, index) ->
@@ -172,11 +171,11 @@ drawTimeline = ->
   $strip = $('<div class="month">')
   $strip.css('height', Timeline.offset).css('background', 'white')
   $('#timeline').append($strip)
-  while calendarHeight < Timeline.length
+  while calendarHeight < Timeline.length-Timeline.offset
     date.setMonth(date.getMonth()+1)
     calendarHeight = calendarHeight + drawMonth(date, calendarHeight)
   $('#future').css 'background', $('.month:last').css('background')
-  
+
   #set up svg lines
   if Timeline.length > 2000
     width = $('body').width()
