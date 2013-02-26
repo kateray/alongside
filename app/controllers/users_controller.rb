@@ -14,7 +14,11 @@ class UsersController < ApplicationController
   def get_overlaps
     current_user.get_overlaps(params[:x])
 
-    render :json => {url: '/u/' + current_user.id.to_s}
+    if current_user.overlaps.blank?
+      render :json => {url: '/loser'}
+    else
+      render :json => {url: '/u/' + current_user.id.to_s}
+    end
 
   end
 
@@ -57,6 +61,9 @@ class UsersController < ApplicationController
 
   end
 
+  def loser
+  end
+
   def update
     @user = current_user
 
@@ -76,8 +83,14 @@ class UsersController < ApplicationController
 
   def redirect_from_show(id)
     if @user = User.find_by_id(id)
-      unless @user.secret == false || current_user == @user
-        render 'public/404.html', :status => 404, :layout => false
+      if current_user == @user
+        if current_user.checkins.blank?
+          redirect_to '/loading'
+        end
+      else
+        if @user.secret == false
+          render 'public/404.html', :status => 404, :layout => false
+        end
       end
     else
       render 'public/404.html', :status => 404, :layout => false

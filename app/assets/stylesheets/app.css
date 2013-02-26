@@ -13,7 +13,7 @@ html, body {
   position: fixed;
   font-size: 14px;
   z-index: 100;
-  opacity: 0.2;
+  opacity: 1;
   -webkit-transition-property:opacity;
   -webkit-transition-duration: 700ms;
   -webkit-transition-timing-function: linear;
@@ -119,12 +119,13 @@ a {
 .message {
   display: none;
   position: fixed;
-  top: 20px;
+  width: 100px;
+  top: 25px;
   right: 50px;
   background: #cccccc;
   z-index: 100;
   padding: 8px;
-  border-radius: 10px;
+  font-size: 12px;
 }
 
 .place {

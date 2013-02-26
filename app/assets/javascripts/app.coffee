@@ -260,6 +260,10 @@ $(document).ready ->
   unless $('#meta').data('page') == 'show'
     return
   $('.twitter-share-button').attr 'data-url', window.location.origin + window.location.pathname
+  $('#nav')
+    .attr('data-0', 'opacity:1;')
+    .attr('data-100', 'opacity:0.2;')
+
   window.Timeline = JSON.parse($('#init-data').val())
   Timeline.offset = 500
   Timeline.zoom = parseUri(window.location.href).queryKey['zoom'] || 1000
