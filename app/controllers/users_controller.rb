@@ -14,7 +14,7 @@ class UsersController < ApplicationController
   def get_overlaps
     current_user.get_overlaps(params[:x])
 
-    if current_user.overlaps.blank?
+    if current_user.checkins.blank?
       render :json => {url: '/loser'}
     else
       render :json => {url: '/u/' + current_user.id.to_s}
