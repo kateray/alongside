@@ -247,11 +247,15 @@ drawTimeline = ->
       @g.remove()
       $('#hovercard').remove()
 
+  #write future text
   unless Timeline.missed.length == 0
     friend = Timeline.missed[Math.floor(Math.random()*Timeline.missed.length)]
     $('.big_text')
       .css('color', friend.color)
       .text "Friends are important. Why don't you give " + friend.name + " a call?"
+  
+  $('#timeline').css('height', $('#paper').height())
+  
   skrollr.init forceHeight: false
 
 showLockImage = (secret) ->
