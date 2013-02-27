@@ -23,7 +23,7 @@ class UsersController < ApplicationController
   end
 
   def show
-    @tweet_url = "https://twitter.com/share?text=Check+out+this+page+"+url_for(@user)+"+made+with+@scrollkit"
+    @tweet_url = "https://twitter.com/share?text=All+My+Friends+"
     top = @user.checkins.first.time
     length = @user.checkins.last.time - top
 
@@ -84,15 +84,21 @@ class UsersController < ApplicationController
 
   def redirect_from_show(id)
     if @user = User.find_by_id(id)
-      if current_user == @user || current_user.god == true
-        if current_user.checkins.blank?
-          redirect_to '/loading'
-        end
-      else
-        if @user.secret == false
+
+      if @user.secret == true
+        unless current_user && (current_user == @user || current_user.god == true)
           render 'public/404.html', :status => 404, :layout => false
         end
       end
+
+      if @user.checkins.blank?
+        if current_user && current_user == @user
+          redirect_to '/loading'
+        else
+          render 'public/404.html', :status => 404, :layout => false
+        end
+      end
+
     else
       render 'public/404.html', :status => 404, :layout => false
     end
