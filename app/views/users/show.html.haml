@@ -17,7 +17,8 @@
   This page is now private
 .message#public_message
   This page is now public. Share it!
-  = render '/extras/twitter_button'
+  %a{:href => @tweet_url, :target => "_blank"}
+    %img{:src => '/assets/tweetbutton.png'}
 %script{:type => "text/template", :id => "hovercardTemplate"}
   .place
     <%= venue_name %>

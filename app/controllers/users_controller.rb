@@ -23,6 +23,7 @@ class UsersController < ApplicationController
   end
 
   def show
+    @tweet_url = "https://twitter.com/share?text=Check+out+this+page+"+url_for(@user)+"+made+with+@scrollkit"
     top = @user.checkins.first.time
     length = @user.checkins.last.time - top
 

@@ -119,13 +119,13 @@ a {
 .message {
   display: none;
   position: fixed;
-  width: 100px;
-  top: 25px;
+  width: 175px;
+  top: 45px;
   right: 50px;
   background: #cccccc;
   z-index: 100;
   padding: 8px;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .place {

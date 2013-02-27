@@ -262,7 +262,7 @@ $(document).ready ->
   $('.twitter-share-button').attr 'data-url', window.location.origin + window.location.pathname
   $('#nav')
     .attr('data-0', 'opacity:1;')
-    .attr('data-100', 'opacity:0.2;')
+    .attr('data-50', 'opacity:0.2;')
 
   window.Timeline = JSON.parse($('#init-data').val())
   Timeline.offset = 500
