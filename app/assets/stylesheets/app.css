@@ -128,6 +128,10 @@ a {
   font-size: 14px;
 }
 
+.message img {
+  margin-bottom: -10px;
+}
+
 .place {
   font-weight: bold;
   font-size: 20px;
