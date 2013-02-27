@@ -1,17 +1,15 @@
 = render "layouts/nav"
 #timeline
-- if current_user && current_user == @user
-  .big_text
+
+.extra_space
+  - if current_user && current_user == @user
+    .big_text
 %input#init-data{type: 'hidden', value: raw(@initData.to_s)}
 
-#controls_container
-  .control.zoom_button{data: {zoom: 'in'}}
-    = '-'
-  .control.zoom_button{data: {zoom: 'out'}}
-    +
-    
-#info
-#hovercard{:style => 'display:none;'}
+.zoom_button{data: {zoom: 'in'}} +
+.zoom_button{data: {zoom: 'out'}} –
+
+
 .message#private_message
   This page is now private
 .message#public_message

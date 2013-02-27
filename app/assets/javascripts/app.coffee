@@ -123,14 +123,15 @@ drawLine = (friend, index) ->
   #show metadata on hover
   line.hover ( (e) ->
     @g = @glow({width:2})
-    $('#info')
+    $('<div id="info">')
       .text(friend.name)
       .css('left', e.pageX+15).css('top', e.pageY)
       .css('color', friend.color)
+      .appendTo('body')
 
   ), ->
     @g.remove()
-    $('#info').text ''
+    $('#info').remove()
 
   if Timeline.action == 'show'
     line.click (e) ->
@@ -177,7 +178,7 @@ drawTimeline = ->
   while calendarHeight < Timeline.length-Timeline.offset
     date.setMonth(date.getMonth()+1)
     calendarHeight = calendarHeight + drawMonth(date, calendarHeight)
-  $('#future').css 'background', $('.month:last').css('background')
+  $('.extra_space').css 'background', $('.month:last').css('background')
 
   #set up svg lines
   if Timeline.length > 2000
@@ -222,7 +223,7 @@ drawTimeline = ->
     circle.hover ( (e) ->
       @g = @glow({width:3})
       date = new Date(point.time*1000)
-      $('#hovercard').css('left', e.pageX+15).css('top', e.pageY)
+
       friends = ''
       _.each point.friends, (f, index) ->
         if index == 0
@@ -235,15 +236,20 @@ drawTimeline = ->
         time: prettifyTime(date),
         shout: point.shout,
         friends: friends}
-      $('#hovercard').html(template).show()
+
+      $('<div id="hovercard">')
+        .html(template)
+        .css('left', e.pageX+15)
+        .css('top', e.pageY)
+        .appendTo('body')
 
     ), ->
       @g.remove()
-      $('#hovercard').hide()
+      $('#hovercard').remove()
 
   unless Timeline.missed.length == 0
     friend = Timeline.missed[Math.floor(Math.random()*Timeline.missed.length)]
-    $('#future')
+    $('.big_text')
       .css('color', friend.color)
       .text "Friends are important. Why don't you give " + friend.name + " a call?"
   skrollr.init forceHeight: false
@@ -274,7 +280,7 @@ $(document).ready ->
   drawTimeline()
 
   $('.zoom_button').click ->
-    if $(this).data('zoom') == 'in'
+    if $(this).data('zoom') == 'out'
       Timeline.zoom = Timeline.zoom*2
     else
       Timeline.zoom = Timeline.zoom/2
