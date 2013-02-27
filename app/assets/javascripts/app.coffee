@@ -257,7 +257,7 @@ showLockImage = (secret) ->
     $('.locked').hide()
 
 $(document).ready ->
-  unless $('#meta').data('page') == 'show'
+  unless $('body').data('page') == 'show' || $('body').data('page') == 'friends'
     return
   $('.twitter-share-button').attr 'data-url', window.location.origin + window.location.pathname
   $('#nav')

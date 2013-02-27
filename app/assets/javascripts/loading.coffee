@@ -1,5 +1,5 @@
 $(document).ready ->
-  unless $('#meta').data('page') == 'loading'
+  unless $('body').data('page') == 'loading'
     return
   uri = window.location.href
   x = parseUri(uri).queryKey['x'] || 10

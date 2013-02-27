@@ -1,8 +1,7 @@
-#meta{:data => {:page => 'show'}}
-
+= render "layouts/nav"
 #timeline
 - if current_user && current_user == @user
-  #future
+  .big_text
 %input#init-data{type: 'hidden', value: raw(@initData.to_s)}
 
 #controls_container
@@ -18,6 +17,7 @@
 .message#public_message
   This page is now public. Share it!
   = link_to image_tag('tweetbutton.png'), @tweet_url, :target => "_blank"
+
 %script{:type => "text/template", :id => "hovercardTemplate"}
   .place
     <%= venue_name %>
