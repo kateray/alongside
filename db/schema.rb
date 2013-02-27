@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130221200155) do
+ActiveRecord::Schema.define(:version => 20130227145245) do
 
   create_table "checkins", :force => true do |t|
     t.integer  "user_id"
@@ -56,8 +56,9 @@ ActiveRecord::Schema.define(:version => 20130221200155) do
     t.string   "persistence_token"
     t.string   "overlaps"
     t.boolean  "secret",            :default => true
-    t.datetime "created_at",                          :null => false
-    t.datetime "updated_at",                          :null => false
+    t.datetime "created_at",                           :null => false
+    t.datetime "updated_at",                           :null => false
+    t.boolean  "god",               :default => false
   end
 
 end

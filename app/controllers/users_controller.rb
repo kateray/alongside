@@ -84,7 +84,7 @@ class UsersController < ApplicationController
 
   def redirect_from_show(id)
     if @user = User.find_by_id(id)
-      if current_user == @user
+      if current_user == @user || current_user.god == true
         if current_user.checkins.blank?
           redirect_to '/loading'
         end
