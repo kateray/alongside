@@ -8,5 +8,5 @@ Alongside::Application.routes.draw do
   match '/loading', to: 'users#loading'
   match '/overlaps', to: 'users#get_overlaps'
   match '/loser', to: 'users#loser'
-  root :to => "user_sessions#new"
+  root :to => "user_sessions#home"
 end
