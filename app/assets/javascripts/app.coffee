@@ -250,12 +250,17 @@ drawTimeline = ->
   #write future text
   unless Timeline.missed.length == 0
     friend = Timeline.missed[Math.floor(Math.random()*Timeline.missed.length)]
-    $('.big_text')
+    $('#reconnect')
       .css('color', friend.color)
       .text "Friends are important. Why don't you give " + friend.name + " a call?"
   
   $('#timeline').css('height', $('#paper').height())
-  
+  $('#paper')
+    .attr('data-0', 'opacity:0;')
+    .attr('data-100', 'opacity:0.25;')
+    .attr('data-200', 'opacity:1;')
+
+  Timeline.zooming = false
   skrollr.init forceHeight: false
 
 showLockImage = (secret) ->
@@ -273,6 +278,9 @@ $(document).ready ->
   $('#nav')
     .attr('data-0', 'opacity:1;')
     .attr('data-50', 'opacity:0.2;')
+  $('#scroll_message')
+    .attr('data-0', 'opacity:1;')
+    .attr('data-100', 'opacity:0;')
 
   window.Timeline = JSON.parse($('#init-data').val())
   Timeline.offset = 500
@@ -282,8 +290,12 @@ $(document).ready ->
   showLockImage Timeline.secret
 
   drawTimeline()
+  $('#home').remove()
 
   $('.zoom_button').click ->
+    if Timeline.zooming == true
+      return
+    Timeline.zooming = true
     if $(this).data('zoom') == 'out'
       Timeline.zoom = Timeline.zoom*2
     else
@@ -291,7 +303,7 @@ $(document).ready ->
     window.history.pushState(null, null, window.location.origin + window.location.pathname + '?zoom=' + Timeline.zoom)
     drawTimeline()
 
-  $('#timeline').click ->
+  $('#timeline, .extra_space').click ->
     $('.message').hide()
 
   $('#toggle_privacy').click (e) ->

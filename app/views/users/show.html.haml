@@ -1,20 +1,25 @@
 = render "layouts/nav"
+#home
 #timeline
 
 .extra_space
   - if current_user && current_user == @user
+    #reconnect
     .big_text
+      Share this page with your people
+    = link_to image_tag('twitter.png'), @tweet_url, :target => "_blank"
 %input#init-data{type: 'hidden', value: raw(@initData.to_s)}
 
 .zoom_button{data: {zoom: 'in'}} +
 .zoom_button{data: {zoom: 'out'}} –
 
-
+#scroll_message
+  = render "/svg/arrow"
 .message#private_message
   This page is now private
 .message#public_message
   This page is now public. Share it!
-  = link_to image_tag('tweetbutton.png'), @tweet_url, :target => "_blank"
+  = link_to image_tag('twitter.png'), @tweet_url, :target => "_blank"
 
 %script{:type => "text/template", :id => "hovercardTemplate"}
   .place

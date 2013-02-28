@@ -1,5 +1,17 @@
 $blue: #47bad9;
 
+@-webkit-keyframes pulse {
+  from {
+    -webkit-transform: scale(1.0);
+  }
+  50% {
+    -webkit-transform: scale(1.2);
+  }
+  to { 
+    -webkit-transform: scale(1.0);
+  }
+}
+
 html, body {
   font-family: Helvetica, Arial, sans-serif;
   min-width: 500px;
@@ -99,6 +111,9 @@ a {
   background: url('/assets/background.jpg') no-repeat center center fixed; 
   -webkit-background-size: cover;
 }
+.users #home {
+  opacity: 0.2;
+}
 .headline {
   font-family: "Century Gothic","Lucida Grande",Arial,sans-serif;
   font-weight: bold;
@@ -144,6 +159,17 @@ a {
   max-width: 300px;
 }
 
+#scroll_message {
+  color: #47bad9;
+  -webkit-animation-name: pulse; 
+  -webkit-animation-duration: .75s; 
+  -webkit-animation-iteration-count: infinite;
+  position: fixed;
+  bottom: 5px;
+  left: 50%;
+  margin-left: -35px;
+}
+
 .message {
   display: none;
   position: fixed;
@@ -157,7 +183,8 @@ a {
 }
 
 .message img {
-  margin-bottom: -10px;
+  width: 50px;
+  margin-bottom: -20px;
 }
 
 .place {
@@ -175,7 +202,11 @@ a {
   font-size: 12px;
 }
 
+#reconnect {
+  margin: 30px;
+  font-size: 20px;
+}
 .big_text {
-  margin: 75px;
-  font-size: 90px;
+  margin-top: 115px;
+  font-size: 80px;
 }

@@ -2,7 +2,7 @@ class UserSessionsController < ApplicationController
 
   def home
     if current_user
-      redirect_to current_user
+      redirect_to '/u/' + current_user.url_id
     end
   end
 
@@ -13,7 +13,7 @@ class UserSessionsController < ApplicationController
     if user.checkins.blank?
       redirect_to '/loading'
     else
-      redirect_to user
+      redirect_to '/u/' + user.url_id
     end
 
   end

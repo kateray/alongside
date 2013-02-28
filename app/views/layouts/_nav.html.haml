@@ -3,7 +3,7 @@
     %a{:href => '/logout', :class => 'nav_button'}
       %img{:src => '/assets/exit.png'}
     - if params[:action] == 'friends'
-      %a{:href => '/u/' + @user.id.to_s, :class => 'nav_button'}
+      %a{:href => '/u/' + @user.url_id.to_s, :class => 'nav_button'}
         = render '/svg/home'
     - elsif params[:action] == 'show' && current_user == @user
       %a{:href => '/loading', :class => 'nav_button'}

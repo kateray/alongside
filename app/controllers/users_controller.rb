@@ -17,15 +17,16 @@ class UsersController < ApplicationController
     if current_user.checkins.blank?
       render :json => {url: '/loser'}
     else
-      render :json => {url: '/u/' + current_user.id.to_s}
+      render :json => {url: '/u/' + current_user.url_id.to_s}
     end
 
   end
 
   def show
-    @tweet_url = "https://twitter.com/share?text=All+My+Friends+"
     top = @user.checkins.first.time
     length = @user.checkins.last.time - top
+
+    @tweet_url = "https://twitter.com/share?text=My+@foursquare+checkins+visualized+since+"+Time.at(top).strftime("%b+%Y")
 
     @initData = {}
     @initData['top'] = top
@@ -34,7 +35,7 @@ class UsersController < ApplicationController
     @initData['points'] = @user.checkins.includes(:friends)
     @initData['secret'] = @user.secret
     @initData['single'] = false
-    @initData['user_id'] = @user.id
+    @initData['user_id'] = @user.url_id
     @initData['action'] = 'show'
     @initData = @initData.to_json
 
@@ -54,7 +55,7 @@ class UsersController < ApplicationController
     @initData['points'] = @friend.checkins.includes(:friends)
     @initData['secret'] = @user.secret
     @initData['single'] = @friend.url_id
-    @initData['user_id'] = @user.id
+    @initData['user_id'] = @user.url_id
     @initData['action'] = 'friends'
     @initData = @initData.to_json
 
@@ -83,7 +84,7 @@ class UsersController < ApplicationController
   private
 
   def redirect_from_show(id)
-    if @user = User.find_by_id(id)
+    if @user = User.find_by_url_id(id)
 
       if @user.secret == true
         unless current_user && (current_user == @user || current_user.god == true)

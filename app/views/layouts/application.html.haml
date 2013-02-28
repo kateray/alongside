@@ -7,6 +7,6 @@
     = csrf_meta_tag
     = render "extras/google_analytics"
 
-  %body{data: {page: action_name}}
+  %body{class: controller_name, data: {page: action_name}}
     = yield
     = javascript_include_tag "application"

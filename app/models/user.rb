@@ -10,6 +10,14 @@ class User < ActiveRecord::Base
     c.validate_password_field = false
   end
 
+  before_create :default_values
+
+  def default_values
+    begin
+      self.url_id = generate_new_url_id
+    end while User.pluck(:url_id).include? url_id
+  end
+
   def self.find_or_create(auth)
   	unless user = User.find_by_foursquare_id(auth["uid"])
   		user = create! do |u|
@@ -68,6 +76,14 @@ class User < ActiveRecord::Base
       end
     end
 
+  end
+
+
+  private
+
+  def generate_new_url_id
+    chars = (?a..?z).to_a + (?A..?Z).to_a + (0..9).to_a
+    7.times.map { chars.sample }.join
   end
 
 end
