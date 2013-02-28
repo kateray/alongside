@@ -295,11 +295,13 @@ $(document).ready ->
   $('.zoom_button').click ->
     if Timeline.zooming == true
       return
-    Timeline.zooming = true
     if $(this).data('zoom') == 'out'
+      if Timeline.zoom == 4000
+        return
       Timeline.zoom = Timeline.zoom*2
     else
       Timeline.zoom = Timeline.zoom/2
+    Timeline.zooming = true
     window.history.pushState(null, null, window.location.origin + window.location.pathname + '?zoom=' + Timeline.zoom)
     drawTimeline()
 
