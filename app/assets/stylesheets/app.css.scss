@@ -1,14 +1,71 @@
+@import "compass/css3/transform";
+@import "compass/css3/transition";
+@import "compass/css3/background-size";
 $blue: #47bad9;
 
-@-webkit-keyframes pulse {
+@mixin keyframes($name) {
+  @-webkit-keyframes #{$name} { @content; }
+  @-moz-keyframes #{$name} { @content; }
+  @-ms-keyframes #{$name} { @content; }
+  @keyframes #{$name} { @content; }
+}
+
+@mixin animation($name,
+                 $delay,
+                 $duration,
+                 $iteration-count,
+                 $timing-function,
+                 $fill-mode: false,
+                 $transform-origin: false) {
+
+  -webkit-animation-name: $name;
+  -webkit-animation-delay: $delay;
+  -webkit-animation-duration: $duration;
+  -webkit-animation-iteration-count: $iteration-count;
+  -webkit-animation-timing-function: $timing-function;
+
+  -moz-animation-name: $name;
+  -moz-animation-delay: $delay;
+  -moz-animation-duration: $duration;
+  -moz-animation-iteration-count: $iteration-count;
+  -moz-animation-timing-function: $timing-function;
+
+  -ms-animation-name: $name;
+  -ms-animation-delay: $delay;
+  -ms-animation-duration: $duration;
+  -ms-animation-iteration-count: $iteration-count;
+  -ms-animation-timing-function: $timing-function;
+
+  -o-animation-name: $name;
+  -o-animation-delay: $delay;
+  -o-animation-duration: $duration;
+  -o-animation-iteration-count: $iteration-count;
+  -o-animation-timing-function: $timing-function;
+
+  @if $fill-mode {
+    -webkit-animation-fill-mode: $fill-mode;
+    -moz-animation-fill-mode: $fill-mode;
+    -ms-animation-fill-mode: $fill-mode;
+    -o-animation-fill-mode: $fill-mode;
+  }
+
+  @if $transform-origin {
+    -webkit-transform-origin: $transform-origin;
+    -moz-transform-origin: $transform-origin;
+    -ms-transform-origin: $transform-origin;
+    -o-transform-origin: $transform-origin;
+  }
+}
+
+@include keyframes(pulse) {
   from {
-    -webkit-transform: scale(1.0);
+    @include transform(scale(1.0));
   }
   50% {
-    -webkit-transform: scale(1.2);
+    @include transform(scale(1.2));
   }
-  to { 
-    -webkit-transform: scale(1.0);
+  to {
+    @include transform(scale(1.0));
   }
 }
 
@@ -19,7 +76,6 @@ html, body {
   margin:0px;
   text-align: center;
 }
-/* TODO: use compass or otherwise make it work for other browsers */
 #nav {
   height: 30px;
   width: 100%;
@@ -28,9 +84,7 @@ html, body {
   font-size: 14px;
   z-index: 100;
   opacity: 1;
-  -webkit-transition-property:opacity;
-  -webkit-transition-duration: 700ms;
-  -webkit-transition-timing-function: linear;
+  @include transition(opacity, 700ms, linear);
 }
 
 a {
@@ -82,7 +136,7 @@ a {
   line-height: 27px;
   text-align: center;
   opacity: 0.5;
-  -webkit-transition: opacity 200ms linear;
+  @include transition(opacity 200ms linear);
 }
 .zoom_button:hover{
   opacity: 1;
@@ -109,7 +163,7 @@ a {
 #home {
   height: 100%;
   background: url('/assets/background.jpg') no-repeat center center fixed; 
-  -webkit-background-size: cover;
+  @include background-size(cover);
 }
 .users #home {
   opacity: 0.2;
@@ -161,9 +215,7 @@ a {
 
 #scroll_message {
   color: #47bad9;
-  -webkit-animation-name: pulse; 
-  -webkit-animation-duration: .75s; 
-  -webkit-animation-iteration-count: infinite;
+  @include animation(pulse, 0, 0.75s, infinite, linear);
   position: fixed;
   bottom: 5px;
   left: 50%;
