@@ -6,7 +6,7 @@ class UsersController < ApplicationController
 
   before_filter :login_required, except: [:show, :friends]
 
-  # caches_action [:show, :friends], :layout => false
+  caches_action [:show, :friends], :layout => false
 
   def loading
   end
