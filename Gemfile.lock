@@ -1,3 +1,13 @@
+GIT
+  remote: https://github.com/getsentry/raven-ruby.git
+  revision: e520389a56d099276c167d8b442967c7fa549ecd
+  specs:
+    sentry-raven (0.4.3)
+      faraday (>= 0.7.6)
+      hashie
+      multi_json (~> 1.0)
+      uuidtools
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -139,6 +149,7 @@ GEM
     uglifier (1.3.0)
       execjs (>= 0.3.0)
       multi_json (~> 1.0, >= 1.0.2)
+    uuidtools (2.1.3)
 
 PLATFORMS
   ruby
@@ -155,5 +166,6 @@ DEPENDENCIES
   pg
   rails (= 3.2.11)
   sass-rails (~> 3.2.3)
+  sentry-raven!
   sqlite3
   uglifier (>= 1.0.3)

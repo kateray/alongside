@@ -24,6 +24,7 @@ group :assets do
   gem 'uglifier', '>= 1.0.3'
 end
 
+gem "sentry-raven", :git => "https://github.com/getsentry/raven-ruby.git"
 gem 'jquery-rails'
 gem 'haml'
 gem 'authlogic'
