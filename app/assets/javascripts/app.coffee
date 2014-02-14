@@ -1,3 +1,5 @@
+skroll = {}
+
 prettifyDate = (date) ->
   months = []
   months[months.length] = "January"
@@ -65,7 +67,7 @@ drawMonth = (date, calendarHeight)->
   $month_name = $('<div class="month_name">')
   $month_name.text months[date.getMonth()-1]
   $strip.append($month_name)
-  
+
   $month_year = $('<div class="month_year">')
   $month_year.text date.getFullYear()
   $strip.append($month_year)
@@ -108,7 +110,7 @@ drawLine = (friend, index) ->
   y = Timeline.length + (Timeline.length - yprev)*2
 
   points.push calculateNewControlPoints(y, yprev)
-  
+
   path = "M" + xstart.toString() + "," + ystart.toString() + "Q" + points.join()
   line = Timeline.paper.path(path)
 
@@ -119,7 +121,7 @@ drawLine = (friend, index) ->
   $(line.node).attr('class', 'friend')
 
   setupSkrollrMetadata line
-  
+
   #show metadata on hover
   line.hover ( (e) ->
     @g = @glow({width:2})
@@ -197,6 +199,12 @@ drawTimeline = ->
   me.attr('stroke', '#47bad9')
   me.attr('stroke-width', '7')
 
+  me.click ->
+    Timeline.single = false
+    window.history.pushState(null, null, "/u/" + Timeline.user_id)
+    $('#toggle_privacy').show()
+    drawTimeline()
+
   setupSkrollrMetadata me
 
   if Timeline.single
@@ -253,7 +261,7 @@ drawTimeline = ->
     $('#reconnect')
       .css('color', friend.color)
       .text "Friends are important. Why don't you give " + friend.name + " a call?"
-  
+
   $('#timeline').css('height', $('#paper').height())
   $('#paper')
     .attr('data-0', 'opacity:0;')
@@ -261,7 +269,7 @@ drawTimeline = ->
     .attr('data-200', 'opacity:1;')
 
   Timeline.zooming = false
-  skrollr.init forceHeight: false
+  # skrollr.init forceHeight: false
 
 showLockImage = (secret) ->
   if secret == true
@@ -322,3 +330,8 @@ $(document).ready ->
           $('#private_message.message').show()
         else
           $('#public_message.message').show()
+  $('#toggle-animation').change ->
+    if $(this).prop('checked')
+      skroll = skrollr.init forceHeight: false
+    else
+      skroll.destroy()

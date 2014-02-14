@@ -1,4 +1,6 @@
 #nav
+  %input{:type=>"checkbox", :id=>"toggle-animation", :class=>"switch"}
+  %label{:for=>"toggle-animation"} animation
   - if current_user
     %a{:href => '/logout', :class => 'nav_button'}
       %img{:src => '/assets/exit.png'}

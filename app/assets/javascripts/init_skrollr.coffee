@@ -1,2 +1,2 @@
 $(document).ready ->
-	skrollr.init forceHeight: false
+	# skrollr.init forceHeight: false
