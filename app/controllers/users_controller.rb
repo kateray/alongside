@@ -29,10 +29,10 @@ class UsersController < ApplicationController
     @tweet_url = "https://twitter.com/share?text=My+@foursquare+checkins+visualized+since+"+Time.at(top).strftime("%b+%Y")
 
     @initData = {}
-    @initData['top'] = top
-    @initData['full_length'] = length
+    @initData['top'] = top*1000
+    @initData['full_length'] = length*1000
     @initData['lines'] = @user.friends.includes(:checkins).order('checkins.time ASC')
-    @initData['points'] = @user.checkins.includes(:friends)
+    # @initData['points'] = @user.checkins.includes(:friends)
     @initData['secret'] = @user.secret
     @initData['single'] = false
     @initData['user_id'] = @user.url_id

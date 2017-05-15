@@ -1,5 +1,7 @@
+- content_for :scripts do
+  = javascript_include_tag "timeline"
+
 = render "layouts/nav"
-#home
 #timeline
 
 .extra_space
@@ -8,7 +10,7 @@
     .big_text
       Share this page with your people
     = link_to image_tag('twitter.png'), @tweet_url, :target => "_blank"
-%input#init-data{type: 'hidden', value: raw(@initData.to_s)}
+#init-data(data-all=@initData)
 
 .zoom_button{data: {zoom: 'in'}} +
 .zoom_button{data: {zoom: 'out'}} –

@@ -8,8 +8,10 @@
     %meta{:name => "description", "content" => "See your friendships, over time"}
     = stylesheet_link_tag "application", :media => "all"
     = csrf_meta_tag
+    <script src="https://d3js.org/d3.v4.min.js"></script>
     = render "extras/google_analytics"
 
   %body{class: controller_name, data: {page: action_name}}
     = yield
     = javascript_include_tag "application"
+    = yield :scripts

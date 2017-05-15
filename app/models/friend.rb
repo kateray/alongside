@@ -14,8 +14,8 @@ class Friend < ActiveRecord::Base
 
   def as_json(options)
     super(
-      :except => [:id, :created_at, :updated_at, :user_id],
-      :include => {:checkins => {:only => :time }}
+      except: [:id, :created_at, :updated_at, :user_id],
+      include: {checkins: {only: [:date, :shout, :venue_name], methods: :date }}
     )
   end
 

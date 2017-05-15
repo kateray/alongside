@@ -3,6 +3,38 @@
 @import "compass/css3/background-size";
 $blue: #47bad9;
 
+
+.line {
+  cursor: pointer;
+  fill: none;
+  stroke-width: 2px;
+
+
+}
+.node {
+  z-index: 10;
+  cursor: pointer;
+}
+
+
+#hover-card {
+  background: #cccccc;
+  padding: 8px;
+  border-radius: 10px;
+  position: absolute;
+  z-index: 100;
+  max-width: 300px;
+}
+
+#name-card {
+  position: absolute;
+  z-index: 100;
+}
+
+
+
+
+
 @mixin keyframes($name) {
   @-webkit-keyframes #{$name} { @content; }
   @-moz-keyframes #{$name} { @content; }
@@ -204,14 +236,7 @@ a {
   position: absolute;
   z-index: 100;
 }
-#hovercard {
-  background: #cccccc;
-  padding: 8px;
-  border-radius: 10px;
-  position: absolute;
-  z-index: 100;
-  max-width: 300px;
-}
+
 
 #scroll_message {
   color: #47bad9;
