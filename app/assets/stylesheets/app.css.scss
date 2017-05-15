@@ -4,16 +4,24 @@
 $blue: #47bad9;
 
 
-.line {
+.line-segment {
   cursor: pointer;
   fill: none;
-  stroke-width: 2px;
-
-
+  stroke-width: 1px;
 }
-.node {
-  z-index: 10;
+.line-segment-overlay {
+  fill: none;
   cursor: pointer;
+  stroke-width: 10px;
+}
+.point {
+  z-index: 100;
+  cursor: pointer;
+}
+
+.me {
+  stroke-width: 2px;
+  stroke: $blue;
 }
 
 
@@ -29,6 +37,7 @@ $blue: #47bad9;
 #name-card {
   position: absolute;
   z-index: 100;
+  font-size: 12px;
 }
 
 
