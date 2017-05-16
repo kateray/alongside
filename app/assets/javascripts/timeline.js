@@ -149,8 +149,9 @@ $(document).ready(function(){
       selectedNodes.select(".point").attr("opacity", "1");
       $('<div id="name-card">'+d.friend.name+'</div>')
         .css('color', d.friend.color)
-        .css('left', d3.event.pageX+15)
-        .css('top', d3.event.pageY)
+        .css('width', 100)
+        .css('left', d3.event.pageX-115)
+        .css('top', d3.event.pageY-10)
         .appendTo('body');
     })
     .on("mouseout", function(d) {
@@ -178,26 +179,45 @@ $(document).ready(function(){
       var showNode = node.filter(function(p) { return p.foursquare_id === d.foursquare_id });
       showNode.select(".point").attr("opacity", "1");
       showNode.select(".label").attr("display", "block");
+      var labelFriends = showNode.select(".label").append("text")
+        .attr("class", "label-friends")
+        .attr("text-anchor", "end")
+        .attr("transform", "translate(-15,0)")
+        .attr("x", function(d) { return x(3); })
+        .attr("y", function(d) { return y(d.date); })
+      labelFriends.attr("y", y(d.date) - (d.friends.length*16)/2 - 8)
+      for (var i=0;i<d.friends.length;i++) {
+        labelFriends.append("tspan")
+          .attr("class", "friend-label")
+          .attr("x", x(3))
+          .attr("dy", "16px")
+          .attr("fill", d.friends[i].color)
+          .text(d.friends[i].name)
+      }
       var selectedLines = friendLine.filter(function(l) {return d.friends.indexOf(l.friend) !== -1 });
       selectedLines.select(".line-segment").attr("opacity", "1").style("stroke-width", "3px")
     })
     .on("mouseout", function(d) {
+      var showNode = node.filter(function(p) { return p.foursquare_id === d.foursquare_id });
+      showNode.select(".label-friends").remove()
       svg.selectAll(".label").attr("display", "none");
       svg.selectAll(".line-segment").attr("opacity", "1").style("stroke-width", "1px");
       svg.selectAll(".point").attr("opacity", "1").style("stroke-width", "2px");
     });
 
+  var label = node.append("g")
+    .attr("class", "label")
+    .attr("display", 'none');
 
-
-  node.append("text")
+  label.append("text")
     .text( function(d){return d.venue_name})
     // .text( function(d){return d.venue_name + ', with ' + d.friends.map(function(f){return f.name}).join(', ')})
-    .attr("class", "label")
+    .attr("class", "label-text")
     .attr("transform", "translate(10,0)")
-    .attr("display", 'none')
     .attr("x", function(d) { return x(3); })
     .attr("y", function(d) { return y(d.date); })
     .style("filter", "url(#drop-shadow)");
+
 
   svg.append('g')
     .attr('transform', 'translate(100,0)')

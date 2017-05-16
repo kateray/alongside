@@ -29,9 +29,10 @@ $blue: #47bad9;
   z-index: 100;
 }
 .label {
-  font-size: 12px;
+  font-size: 14px;
   stroke-width: 0px;
   fill: black;
+  z-index: 100;
 }
 .label-text {
   z-index: 100;
@@ -45,8 +46,9 @@ $blue: #47bad9;
 
 #name-card {
   position: absolute;
-  z-index: 100;
-  font-size: 12px;
+  font-size: 14px;
+  text-align: right;
+  pointer-events: none;
 }
 
 
@@ -294,7 +296,7 @@ a {
 }
 
 .friends {
-  font-size: 12px;
+  font-size: 14px;
 }
 
 #reconnect {
