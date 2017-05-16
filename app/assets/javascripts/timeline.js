@@ -33,10 +33,23 @@ function parseData(top, data) {
   return {lines: lineSegments, points: points};
 }
 
+function pointFill(d) {
+  if (d.friends.length === 1) {
+    return '#fff';
+  } else {
+    return "url(#gradient-"+d.foursquare_id+")";
+  }
+}
+
+function pointsWidth(l){
+  return l*3 + 7;
+}
+
+
 $(document).ready(function(){
   var data = $('#init-data').data('all');
   var parsedData = parseData(data.top, data.lines)
-  var width = $(window).width()-2;
+  var width = $(window).width();
   var height = 40000;
 
   var x = d3.scaleLinear().domain([0,6]).range([0, width]);
@@ -52,24 +65,33 @@ $(document).ready(function(){
     return "M" + starting + "A" + dr + "," + dr + " 0 0,"+dir+" " + ending;
   }
 
-  function pointsWidth(l){
-    return l*3 + 7;
-  }
+  var svg = d3.select("#timeline").append("svg").attr("width", width).attr("height", height)
 
-  var svg = d3.select("#timeline").append("svg").attr("width", width).attr("height", height);
+  var fullTime = d3.timeMonths(data.top, data.top+data.full_length);
 
   var defs = svg.append("defs");
   var filter = defs.append("filter")
-    .attr("id", "drop-shadow")
+    .attr("id", "yellow-highlight")
     .attr("x", "0%")
     .attr("width", "100%");
-
   filter.append("feFlood")
     .attr("flood-color", "yellow");
-
   filter.append("feComposite")
     .attr("in", "SourceGraphic");
 
+  var colorMonths = ['white', 'blue', 'green', 'yellow', 'red', 'purple', 'white', 'blue', 'green', 'yellow', 'red', 'purple'];
+
+  var rainbow = defs.append("linearGradient")
+    .attr("id", "rainbow-gradient")
+    .attr("x2", "0%")
+    .attr("y2", "100%");
+
+  fullTime.forEach(function(t, i){
+    var color = colorMonths[t.getMonth()-1];
+    rainbow.append("stop")
+      .attr("offset", i/fullTime.length*100+'%')
+      .attr("stop-color", color);
+  })
 
   for (var i=0;i<parsedData.points.length;i++) {
     var pt = parsedData.points[i];
@@ -104,13 +126,7 @@ $(document).ready(function(){
     }
   }
 
-  function pointFill(d) {
-    if (d.friends.length === 1) {
-      return '#fff';
-    } else {
-      return "url(#gradient-"+d.foursquare_id+")";
-    }
-  }
+
 
   svg.append("line")
     .attr("class", "me")
@@ -216,13 +232,19 @@ $(document).ready(function(){
     .attr("transform", "translate(10,0)")
     .attr("x", function(d) { return x(3); })
     .attr("y", function(d) { return y(d.date); })
-    .style("filter", "url(#drop-shadow)");
+    .style("filter", "url(#yellow-highlight)");
 
+  svg.append("rect")
+    .attr("class", "calendar")
+    .attr("height", height)
+    .attr("width", 50)
+    .attr("fill",  "url(#rainbow-gradient)")
 
   svg.append('g')
-    .attr('transform', 'translate(100,0)')
+    .attr('transform', 'translate(50,0)')
     .call(d3.axisLeft(y)
-      .ticks(1000)
-      .tickFormat(d3.timeFormat("%B %e %Y"))
+      .ticks(d3.timeMonth)
+      .tickFormat(d3.timeFormat("%b %Y"))
     );
+
 })
