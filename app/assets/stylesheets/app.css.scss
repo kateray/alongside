@@ -17,21 +17,30 @@ $blue: #47bad9;
 .point {
   z-index: 100;
   cursor: pointer;
+  stroke-width: 2px;
+  // width: 10px;
+  // height: 10px;
 }
-
+.rect-pattern {
+  fill: none;
+  // fill: #fff;
+  stroke-width: 2px;
+  // x: 0;
+  z-index: 100;
+}
+.label {
+  font-size: 12px;
+  stroke-width: 0px;
+  fill: black;
+}
+.label-text {
+  z-index: 100;
+  fill: black;
+  stroke: black;
+}
 .me {
   stroke-width: 2px;
   stroke: $blue;
-}
-
-
-#hover-card {
-  background: #cccccc;
-  padding: 8px;
-  border-radius: 10px;
-  position: absolute;
-  z-index: 100;
-  max-width: 300px;
 }
 
 #name-card {

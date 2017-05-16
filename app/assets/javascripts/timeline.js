@@ -52,7 +52,65 @@ $(document).ready(function(){
     return "M" + starting + "A" + dr + "," + dr + " 0 0,"+dir+" " + ending;
   }
 
+  function pointsWidth(l){
+    return l*3 + 7;
+  }
+
   var svg = d3.select("#timeline").append("svg").attr("width", width).attr("height", height);
+
+  var defs = svg.append("defs");
+  var filter = defs.append("filter")
+    .attr("id", "drop-shadow")
+    .attr("x", "0%")
+    .attr("width", "100%");
+
+  filter.append("feFlood")
+    .attr("flood-color", "yellow");
+
+  filter.append("feComposite")
+    .attr("in", "SourceGraphic");
+
+
+  for (var i=0;i<parsedData.points.length;i++) {
+    var pt = parsedData.points[i];
+
+    if (pt.friends.length > 1) {
+      var totalLength = pointsWidth(pt.friends.length)
+
+      var gradient = defs.append("pattern")
+        .attr("width", totalLength)
+        .attr("height", totalLength)
+        .attr("patternUnits", "objectBoundingBox")
+        .attr("id", "gradient-"+pt.foursquare_id);
+
+      gradient.append("rect")
+        .attr("fill", '#fff')
+        .attr("x", totalLength/2 - 2.5)
+        .attr("y", totalLength/2 - 2.5)
+        .attr("width", 5)
+        .attr("height", 5);
+
+      for (var ii=0;ii<pt.friends.length;ii++){
+        var fr = pt.friends[ii];
+        var rectLength = pointsWidth(ii);
+        gradient.append("rect")
+          .attr("class", "rect-pattern")
+          .attr("stroke", fr.color)
+          .attr("x", totalLength/2 - rectLength/2)
+          .attr("y", totalLength/2 - rectLength/2)
+          .attr("width", rectLength)
+          .attr("height", rectLength);
+      }
+    }
+  }
+
+  function pointFill(d) {
+    if (d.friends.length === 1) {
+      return '#fff';
+    } else {
+      return "url(#gradient-"+d.foursquare_id+")";
+    }
+  }
 
   svg.append("line")
     .attr("class", "me")
@@ -64,8 +122,6 @@ $(document).ready(function(){
   var friendLine = svg.selectAll(".line")
       .data(parsedData.lines)
     .enter().append("g").attr("class", "line");
-
-
 
   friendLine.append("path")
     .attr("class", "line-segment")
@@ -98,7 +154,8 @@ $(document).ready(function(){
         .appendTo('body');
     })
     .on("mouseout", function(d) {
-      svg.selectAll(".line-segment, .point").attr("opacity", "1").style("stroke-width", "1px");
+      svg.selectAll(".line-segment").attr("opacity", "1").style("stroke-width", "1px");
+      svg.selectAll(".point").attr("opacity", "1").style("stroke-width", "2px");
       svg.selectAll(".label").attr("display", "none");
       $('#name-card').remove()
     })
@@ -107,32 +164,40 @@ $(document).ready(function(){
     .data(parsedData.points)
   .enter().append("g").attr("class", function(d) { return "node " + d.foursquare_id });
 
-  var point = node.append("circle")
+  var point = node.append("rect")
     .attr("class", "point")
-    .attr("fill", function(d) { return d.friends[0].color; })
-    .attr("r", 5)
-    .attr("cx", function(d) { return x(3); })
-    .attr("cy", function(d) { return y(d.date); });
+    .attr('transform', function(d){return 'translate(0,-'+((pointsWidth(d.friends.length)/2)+3) +') rotate(45 '+x(3)+' '+y(d.date)+')'})
+    .attr("fill", pointFill)
+    .attr("stroke", function(d){ return d.friends[0].color })
+    .attr("width", function(d) {return pointsWidth(d.friends.length)})
+    .attr("height", function(d) {return pointsWidth(d.friends.length)})
+    .attr("x", function(d) { return x(3); })
+    .attr("y", function(d) { return y(d.date); })
+    .on("mouseover", function(d) {
+      svg.selectAll(".line-segment, .point").attr("opacity", "0.3")
+      var showNode = node.filter(function(p) { return p.foursquare_id === d.foursquare_id });
+      showNode.select(".point").attr("opacity", "1");
+      showNode.select(".label").attr("display", "block");
+      var selectedLines = friendLine.filter(function(l) {return d.friends.indexOf(l.friend) !== -1 });
+      selectedLines.select(".line-segment").attr("opacity", "1").style("stroke-width", "3px")
+    })
+    .on("mouseout", function(d) {
+      svg.selectAll(".label").attr("display", "none");
+      svg.selectAll(".line-segment").attr("opacity", "1").style("stroke-width", "1px");
+      svg.selectAll(".point").attr("opacity", "1").style("stroke-width", "2px");
+    });
 
-  var label = node.append("text")
-    .attr("class", "label")
+
+
+  node.append("text")
     .text( function(d){return d.venue_name})
+    // .text( function(d){return d.venue_name + ', with ' + d.friends.map(function(f){return f.name}).join(', ')})
+    .attr("class", "label")
+    .attr("transform", "translate(10,0)")
     .attr("display", 'none')
     .attr("x", function(d) { return x(3); })
-    .attr("y", function(d) { return y(d.date); });
-
-  point.on("mouseover", function(d) {
-    var showNode = node.filter(function(p) { return p.foursquare_id === d.foursquare_id });
-    showNode.select(".label").attr("display", "block");
-    svg.selectAll(".line-segment, .point").attr("opacity", "0.3")
-    var selectedLines = friendLine.filter(function(l) {return d.friends.indexOf(l.friend) !== -1 });
-    selectedLines.select(".line-segment").attr("opacity", "1").style("stroke-width", "3px")
-  })
-
-  point.on("mouseout", function(d) {
-    svg.selectAll(".label").attr("display", "none");
-    svg.selectAll(".line-segment, .point").attr("opacity", "1").style("stroke-width", "1px");
-  })
+    .attr("y", function(d) { return y(d.date); })
+    .style("filter", "url(#drop-shadow)");
 
   svg.append('g')
     .attr('transform', 'translate(100,0)')
