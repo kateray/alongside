@@ -126,7 +126,34 @@ $(document).ready(function(){
     }
   }
 
+  function showVenueInfo(showNode, d){
+    var label = showNode.append("g").attr("class", "label");
+    label.append("text")
+      .text( function(d){return d.venue_name})
+      .attr("class", "label-text")
+      .attr("transform", "translate(10,0)")
+      .attr("x", function(d) { return x(3); })
+      .attr("y", function(d) { return y(d.date); })
+      .style("filter", "url(#yellow-highlight)");
 
+    if (d) {
+      var labelFriends = label.append("text")
+        .attr("class", "label-friends")
+        .attr("text-anchor", "end")
+        .attr("transform", "translate(-15,0)")
+        .attr("x", function(d) { return x(3); })
+        .attr("y", function(d) { return y(d.date); })
+      labelFriends.attr("y", y(d.date) - (d.friends.length*16)/2 - 8);
+      for (var i=0;i<d.friends.length;i++) {
+        labelFriends.append("tspan")
+          .attr("class", "friend-label")
+          .attr("x", x(3))
+          .attr("dy", "16px")
+          .attr("fill", d.friends[i].color)
+          .text(d.friends[i].name)
+      }
+    }
+  }
 
   svg.append("line")
     .attr("class", "me")
@@ -148,6 +175,28 @@ $(document).ready(function(){
     .attr("y2", function(d) { return y(d.target.y); })
     .attr("d", valueline);
 
+  function highlightLine(d){
+    svg.selectAll(".line-segment, .point").attr("opacity", "0.3")
+    var showLine = friendLine.filter(function(l) { return l.friend.foursquare_id === d.friend.foursquare_id });
+    showLine.select(".line-segment").attr("opacity", "1").style("stroke-width", "3px");
+    var selectedNodes = node.filter(function(l) { return l.friends.indexOf(d.friend) !== -1 });
+    showVenueInfo(selectedNodes)
+    selectedNodes.select(".point").attr("opacity", "1");
+    $('<div id="name-card">'+d.friend.name+'</div>')
+      .css('color', d.friend.color)
+      .css('width', 100)
+      .css('left', d3.event.pageX-115)
+      .css('top', d3.event.pageY-10)
+      .appendTo('body');
+  }
+
+  function unHighlightLine(d){
+    svg.selectAll(".line-segment").attr("opacity", "1").style("stroke-width", "1px");
+    svg.selectAll(".point").attr("opacity", "1").style("stroke-width", "2px");
+    svg.selectAll(".label").remove();
+    $('#name-card').remove();
+  }
+
   friendLine.append("path")
     .attr("class", "line-segment-overlay")
     .attr('stroke', 'transparent')
@@ -156,89 +205,59 @@ $(document).ready(function(){
     .attr("x2", function(d) { return x(d.target.x); })
     .attr("y2", function(d) { return y(d.target.y); })
     .attr("d", valueline)
-    .on("mouseover", function(d) {
-      svg.selectAll(".line-segment, .point").attr("opacity", "0.3")
-      var showLine = friendLine.filter(function(l) { return l.friend.foursquare_id === d.friend.foursquare_id });
-      showLine.select(".line-segment").attr("opacity", "1").style("stroke-width", "3px");
-      var selectedNodes = node.filter(function(l) { return l.friends.indexOf(d.friend) !== -1 });
-      selectedNodes.select(".label").attr("display", "block");
-      selectedNodes.select(".point").attr("opacity", "1");
-      $('<div id="name-card">'+d.friend.name+'</div>')
-        .css('color', d.friend.color)
-        .css('width', 100)
-        .css('left', d3.event.pageX-115)
-        .css('top', d3.event.pageY-10)
-        .appendTo('body');
-    })
-    .on("mouseout", function(d) {
-      svg.selectAll(".line-segment").attr("opacity", "1").style("stroke-width", "1px");
-      svg.selectAll(".point").attr("opacity", "1").style("stroke-width", "2px");
-      svg.selectAll(".label").attr("display", "none");
-      $('#name-card').remove()
-    })
+    .on("mouseover", highlightLine)
+    .on("mouseout", unHighlightLine)
 
   var node = svg.selectAll(".node")
     .data(parsedData.points)
   .enter().append("g").attr("class", function(d) { return "node " + d.foursquare_id });
 
+  function highlightNode(d){
+    svg.selectAll(".line-segment, .point").attr("opacity", "0.3")
+    var showNode = node.filter(function(p) { return p.foursquare_id === d.foursquare_id });
+    showNode.select(".point").attr("opacity", "1");
+    showVenueInfo(showNode, d)
+    var selectedLines = friendLine.filter(function(l) {return d.friends.indexOf(l.friend) !== -1 });
+    selectedLines.select(".line-segment").attr("opacity", "1").style("stroke-width", "3px")
+  }
+
+  function unHighlightNode(d){
+    var showNode = node.filter(function(p) { return p.foursquare_id === d.foursquare_id });
+    showNode.select(".label").remove()
+    svg.selectAll(".line-segment").attr("opacity", "1").style("stroke-width", "1px");
+    svg.selectAll(".point").attr("opacity", "1").style("stroke-width", "2px");
+  }
+
   var point = node.append("rect")
     .attr("class", "point")
-    .attr('transform', function(d){return 'translate(0,-'+((pointsWidth(d.friends.length)/2)+3) +') rotate(45 '+x(3)+' '+y(d.date)+')'})
     .attr("fill", pointFill)
     .attr("stroke", function(d){ return d.friends[0].color })
     .attr("width", function(d) {return pointsWidth(d.friends.length)})
     .attr("height", function(d) {return pointsWidth(d.friends.length)})
     .attr("x", function(d) { return x(3); })
-    .attr("y", function(d) { return y(d.date); })
-    .on("mouseover", function(d) {
-      svg.selectAll(".line-segment, .point").attr("opacity", "0.3")
-      var showNode = node.filter(function(p) { return p.foursquare_id === d.foursquare_id });
-      showNode.select(".point").attr("opacity", "1");
-      showNode.select(".label").attr("display", "block");
-      var labelFriends = showNode.select(".label").append("text")
-        .attr("class", "label-friends")
-        .attr("text-anchor", "end")
-        .attr("transform", "translate(-15,0)")
-        .attr("x", function(d) { return x(3); })
-        .attr("y", function(d) { return y(d.date); })
-      labelFriends.attr("y", y(d.date) - (d.friends.length*16)/2 - 8)
-      for (var i=0;i<d.friends.length;i++) {
-        labelFriends.append("tspan")
-          .attr("class", "friend-label")
-          .attr("x", x(3))
-          .attr("dy", "16px")
-          .attr("fill", d.friends[i].color)
-          .text(d.friends[i].name)
-      }
-      var selectedLines = friendLine.filter(function(l) {return d.friends.indexOf(l.friend) !== -1 });
-      selectedLines.select(".line-segment").attr("opacity", "1").style("stroke-width", "3px")
-    })
-    .on("mouseout", function(d) {
-      var showNode = node.filter(function(p) { return p.foursquare_id === d.foursquare_id });
-      showNode.select(".label-friends").remove()
-      svg.selectAll(".label").attr("display", "none");
-      svg.selectAll(".line-segment").attr("opacity", "1").style("stroke-width", "1px");
-      svg.selectAll(".point").attr("opacity", "1").style("stroke-width", "2px");
-    });
+    .on("mouseover", highlightNode)
+    .on("mouseout", unHighlightNode)
 
-  var label = node.append("g")
-    .attr("class", "label")
-    .attr("display", 'none');
+  function setPointData(point){
+    point
+      .attr('transform', function(d){return 'translate(0,-'+((pointsWidth(d.friends.length)/2)+3) +') rotate(45 '+x(3)+' '+y(d.date)+')'})
+      .attr("y", function(d) { return y(d.date); })
+  }
 
-  label.append("text")
-    .text( function(d){return d.venue_name})
-    // .text( function(d){return d.venue_name + ', with ' + d.friends.map(function(f){return f.name}).join(', ')})
-    .attr("class", "label-text")
-    .attr("transform", "translate(10,0)")
-    .attr("x", function(d) { return x(3); })
-    .attr("y", function(d) { return y(d.date); })
-    .style("filter", "url(#yellow-highlight)");
+  setPointData(point)
 
   svg.append("rect")
     .attr("class", "calendar")
     .attr("height", height)
     .attr("width", 50)
     .attr("fill",  "url(#rainbow-gradient)")
+    .on("mousedown", function(d){
+      height = 3000;
+      var t0 = svg.transition().duration(750);
+      y.range([0, height]);
+      setPointData(t0.selectAll('.point'))
+      t0.selectAll('.line-segment, .line-segment-overlay').attr("d", valueline);
+    })
 
   svg.append('g')
     .attr('transform', 'translate(50,0)')
