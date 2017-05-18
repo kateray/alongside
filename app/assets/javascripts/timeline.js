@@ -4,17 +4,14 @@ function parseData(top, data) {
   for (var i=0;i<(data.length-1);i++){
     var friend = data[i];
     var pos = i%2 === 0;
-    for (var ii=0;ii<(friend.checkins.length-1);ii++){
+    var l = {
+      pos: pos,
+      friend: friend,
+      stops: []
+    }
+    for (var ii=0;ii<(friend.checkins.length);ii++){
       var pt = friend.checkins[ii];
-      var sourceDate = ii === 0 ? top-1000000000000 : friend.checkins[ii-1].date;
-      var l = {
-        pos: pos,
-        source: {x: 3, y: sourceDate},
-        target: {x: 3, y: pt.date},
-        foursquare_id: pt.foursquare_id,
-        friend: friend
-      }
-      lineSegments.push(l)
+      l.stops.push([3, pt.date]);
       var checkin = points.find(function(p){
         return p.foursquare_id === pt.foursquare_id
       })
@@ -29,6 +26,7 @@ function parseData(top, data) {
         })
       }
     }
+    lineSegments.push(l)
   }
   return {lines: lineSegments, points: points};
 }
@@ -51,6 +49,7 @@ var Chart = function(opts) {
   this.height = opts.height;
   this.top = opts.top;
   this.bottom = opts.bottom;
+  this.zoomStartPoint = null;
 
   this.draw();
 }
@@ -59,9 +58,11 @@ Chart.prototype.draw = function(){
   this.element = d3.select("#timeline").append("svg").attr("width", this.width).attr("height", this.height);
   this.createScales();
   this.setupDefs();
-  this.friendLine = this.drawLines();
+  this.drawLines();
   this.node = this.drawPoints();
   this.updatePoints(this.node.selectAll('.point'));
+  this.drawCalendar();
+  this.yAxis = this.element.append('g');
   this.drawAxis();
 }
 
@@ -131,19 +132,30 @@ Chart.prototype.setupDefs = function(){
   }
 }
 
+Chart.prototype.calculatePathFromPts = function(source, target, dir) {
+  var ending = this.x(target[0]) + "," + this.y(target[1]);
+  var dx = this.x(target[0]) - this.x(source[0]);
+  var dy = this.y(target[1]) - this.y(source[1]);
+  var dr = Math.sqrt(dx * dx + dy * dy);
+  return "A"+ dr + "," + dr + " 0 0,"+dir+" " + ending;
+}
+
 Chart.prototype.valueline = function(d){
-  var dx = this.x(d.target.x) - this.x(d.source.x),
-  dy = this.y(d.target.y) - this.y(d.source.y),
-  dr = Math.sqrt(dx * dx + dy * dy);
   var dir = d.pos ? '1' : '0';
-  var starting = this.x(d.source.x) + "," + this.y(d.source.y);
-  var ending = this.x(d.target.x) + "," + this.y(d.target.y)
-  return "M" + starting + "A" + dr + "," + dr + " 0 0,"+dir+" " + ending;
+  var starting = this.x(3) + "," + this.y(this.top-1000000000000);
+  var pathValue = "M"+starting+this.calculatePathFromPts([3,this.top-1000000000000], d.stops[0], dir);
+  for (var i=0;i<d.stops.length-1;i++){
+    var source = d.stops[i];
+    var target = d.stops[i+1];
+    pathValue = pathValue + this.calculatePathFromPts(source, target, dir);
+  }
+  return pathValue;
 }
 
 Chart.prototype.drawLines = function(){
   var _this = this;
 
+  // this.element.selectAll(".line")
   this.element.append("line")
     .attr("class", "me")
     .attr("x1", function(d) { return _this.x(3); })
@@ -151,31 +163,27 @@ Chart.prototype.drawLines = function(){
     .attr("x2", function(d) { return _this.x(3); })
     .attr("y2", function(d) { return _this.y(_this.bottom); });
 
-  var friendLine = this.element.selectAll(".line")
-      .data(this.data.lines)
-    .enter().append("g").attr("class", "line");
+  // var friendLine = this.element.selectAll(".line")
+  //     .data(this.data.lines)
+  //   .enter().append("g").attr("class", "line");
 
-  friendLine.append("path")
+  this.element.selectAll(".line-segment")
+    .data(this.data.lines)
+    .enter().append("path")
     .attr("class", "line-segment")
     .attr('stroke', function(d) { return d.friend.color; })
-    .attr("x1", function(d) { return _this.x(d.source.x); })
-    .attr("y1", function(d) { return _this.y(d.source.y); })
-    .attr("x2", function(d) { return _this.x(d.target.x); })
-    .attr("y2", function(d) { return _this.y(d.target.y); })
     .attr("d", _this.valueline.bind(_this));
 
-  friendLine.append("path")
+  this.element.selectAll(".line-segment-overlay")
+    .data(this.data.lines)
+    .enter().append("path")
     .attr("class", "line-segment-overlay")
     .attr('stroke', 'transparent')
-    .attr("x1", function(d) { return _this.x(d.source.x); })
-    .attr("y1", function(d) { return _this.y(d.source.y); })
-    .attr("x2", function(d) { return _this.x(d.target.x); })
-    .attr("y2", function(d) { return _this.y(d.target.y); })
     .attr("d", _this.valueline.bind(_this))
     .on("mouseover", _this.highlightLine.bind(_this))
     .on("mouseout", _this.unHighlightLine.bind(_this))
 
-  return friendLine;
+  // return friendLine;
 }
 
 Chart.prototype.drawPoints = function() {
@@ -206,22 +214,58 @@ Chart.prototype.updatePoints = function(point){
     .attr("y", function(d) { return _this.y(d.date); });
 }
 
-Chart.prototype.drawAxis = function(){
-  var _this = this;
+Chart.prototype.zoomStart = function(){
+  this.zoomStartPoint = d3.event.pageY;
+}
 
+Chart.prototype.zoomStop = function(){
+  this.zoomStartPoint = null;
+}
+
+Chart.prototype.zoom = function(){
+  if (this.zoomStartPoint) {
+    var _this = this;
+    var dist = d3.event.pageY - this.zoomStartPoint;
+    // person dragged down, so zoom in
+    if (dist < 0) {
+      this.height = this.height/(Math.abs(dist)*5/this.height + 1)
+
+    // person dragged up, so zoom out
+    } else {
+      this.height = this.height*(Math.abs(dist)*5/this.height + 1)
+
+    }
+    // var height = this.height;
+    // this.height = height + (dist*10000000)/height;
+    // var t0 = this.element.transition().duration(550);
+    this.y.range([0, this.height]);
+    this.updatePoints(this.element.selectAll('.point'))
+    this.element.selectAll('.line-segment, .line-segment-overlay').attr("d", _this.valueline.bind(_this));
+    this.element.selectAll('.me').attr("y2", function(d) { return _this.y(_this.bottom); });
+    this.element.selectAll('.calendar').attr("height", _this.height);
+    this.drawAxis();
+    this.element.attr("height", this.height);
+    this.zoomStartPoint = null;
+  }
+}
+
+
+Chart.prototype.drawCalendar = function(){
+  var _this = this;
   this.element.append("rect")
     .attr("class", "calendar")
     .attr("height", _this.height)
     .attr("fill",  "url(#rainbow-gradient)")
-    .on("mousedown", function(d){
-      _this.height = 3000;
-      var t0 = _this.element.transition().duration(750);
-      _this.y.range([0, _this.height]);
-      _this.updatePoints(t0.selectAll('.point'))
-      t0.selectAll('.line-segment, .line-segment-overlay').attr("d", _this.valueline.bind(_this));
-    })
+    .on("mousedown", _this.zoomStart.bind(_this))
+    .on("mouseleave", _this.zoomStop.bind(_this))
+    // .on("mousemove", _this.zoom.bind(_this))
+    .on("mouseup", _this.zoom.bind(_this));
+}
 
-  this.element.append('g')
+Chart.prototype.drawAxis = function(){
+  var _this = this;
+
+  this.yAxis
     .attr('transform', 'translate(50,0)')
     .call(d3.axisLeft(_this.y)
       .ticks(d3.timeMonth)
@@ -264,19 +308,18 @@ Chart.prototype.highlightNode = function(d){
   var showNode = this.node.filter(function(p) { return p.foursquare_id === d.foursquare_id });
   showNode.select(".point").attr("opacity", "1");
   this.showVenueInfo(showNode, d)
-  var selectedLines = this.friendLine.filter(function(l) {return d.friends.indexOf(l.friend) !== -1 });
-  selectedLines.select(".line-segment").attr("opacity", "1").style("stroke-width", "3px")
+  var selectedLines = this.element.selectAll(".line-segment").filter(function(l) {return d.friends.indexOf(l.friend) !== -1 });
+  selectedLines.attr("opacity", "1").style("stroke-width", "3px")
 }
 Chart.prototype.unHighlightNode = function(d){
-  var showNode = this.node.filter(function(p) { return p.foursquare_id === d.foursquare_id });
-  showNode.select(".label").remove()
+  this.element.selectAll(".label").remove()
   this.element.selectAll(".line-segment").attr("opacity", "1").style("stroke-width", "1px");
-  this.element.selectAll(".point").attr("opacity", "1").style("stroke-width", "2px");
+  this.element.selectAll(".point").attr("opacity", "1");
 }
 Chart.prototype.highlightLine = function(d){
   this.element.selectAll(".line-segment, .point").attr("opacity", "0.3")
-  var showLine = this.friendLine.filter(function(l) { return l.friend.foursquare_id === d.friend.foursquare_id });
-  showLine.select(".line-segment").attr("opacity", "1").style("stroke-width", "3px");
+  var showLine = this.element.selectAll(".line-segment").filter(function(l) { return l.friend.foursquare_id === d.friend.foursquare_id });
+  showLine.attr("opacity", "1").style("stroke-width", "3px");
   var selectedNodes = this.node.filter(function(l) { return l.friends.indexOf(d.friend) !== -1 });
   this.showVenueInfo(selectedNodes)
   selectedNodes.select(".point").attr("opacity", "1");
@@ -288,18 +331,17 @@ Chart.prototype.highlightLine = function(d){
 }
 Chart.prototype.unHighlightLine = function(d){
   this.element.selectAll(".line-segment").attr("opacity", "1").style("stroke-width", "1px");
-  this.element.selectAll(".point").attr("opacity", "1").style("stroke-width", "2px");
+  this.element.selectAll(".point").attr("opacity", "1");
   this.element.selectAll(".label").remove();
   $('#name-card').remove();
 }
 
 $(document).ready(function(){
   var data = $('#init-data').data('all');
-
   var chart = new Chart({
     data: parseData(data.top, data.lines),
     width: $(window).width(),
-    height: 40000,
+    height: 20000,
     top: data.top,
     bottom: data.top+data.full_length
   });
