@@ -44,18 +44,18 @@ $blue: #47bad9;
   stroke: $blue;
 }
 
-#name-card {
-  position: absolute;
+.name-card {
   font-size: 14px;
-  text-align: right;
   pointer-events: none;
-  width: 100px;
 }
 .calendar {
   width: 50px;
   cursor: ns-resize;
 }
-
+.zoom-button {
+  z-index: 1000;
+  fill: #000;
+}
 
 
 

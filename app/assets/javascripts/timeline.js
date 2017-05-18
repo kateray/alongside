@@ -215,44 +215,84 @@ Chart.prototype.zoomStop = function(){
   this.zoomStartPoint = null;
 }
 
+Chart.prototype.zoomIn = function(){
+  this.height = Math.floor(this.height * 1.2);
+  this.zoom()
+}
+
+Chart.prototype.zoomOut = function(){
+  this.height = Math.floor(this.height * 0.8);
+  this.zoom()
+}
+
 Chart.prototype.zoom = function(){
-  if (this.zoomStartPoint) {
-    var _this = this;
-    var dist = d3.event.pageY - this.zoomStartPoint;
-    // person dragged down, so zoom in
-    if (dist < 0) {
-      this.height = this.height/(Math.abs(dist)*5/this.height + 1)
+  // if (dir === 'in') {
+  //   this.height = this.height * 1.2;
+  // } else {
+  //   this.height = this.height * 0.8;
+  // }
+  var _this = this;
+  var t0 = this.element.transition().duration(550);
+  this.y.range([0, this.height]);
+  this.updatePoints(t0.selectAll('.point'))
+  t0.selectAll('.line-segment, .line-segment-overlay').attr("d", _this.valueline.bind(_this));
+  t0.selectAll('.me').attr("y2", function(d) { return _this.y(_this.bottom); });
+  t0.selectAll('.calendar').attr("height", _this.height);
+  this.drawAxis();
+  t0.attr("height", this.height);
+  // this.zoomStartPoint = null;
 
-    // person dragged up, so zoom out
-    } else {
-      this.height = this.height*(Math.abs(dist)*5/this.height + 1)
-
-    }
-    // var height = this.height;
-    // this.height = height + (dist*10000000)/height;
-    // var t0 = this.element.transition().duration(550);
-    this.y.range([0, this.height]);
-    this.updatePoints(this.element.selectAll('.point'))
-    this.element.selectAll('.line-segment, .line-segment-overlay').attr("d", _this.valueline.bind(_this));
-    this.element.selectAll('.me').attr("y2", function(d) { return _this.y(_this.bottom); });
-    this.element.selectAll('.calendar').attr("height", _this.height);
-    this.drawAxis();
-    this.element.attr("height", this.height);
-    this.zoomStartPoint = null;
-  }
+  // if (this.zoomStartPoint) {
+  //   var _this = this;
+  //   var dist = d3.event.pageY - this.zoomStartPoint;
+  //   // person dragged down, so zoom in
+  //   if (dist < 0) {
+  //     this.height = this.height/(Math.abs(dist)*100/this.height + 1)
+  //
+  //   // person dragged up, so zoom out
+  //   } else {
+  //     this.height = this.height*(Math.abs(dist)*100/this.height + 1)
+  //
+  //   }
+  //   // var height = this.height;
+  //   // this.height = height + (dist*10000000)/height;
+  //   // var t0 = this.element.transition().duration(550);
+  //   console.log(this.height)
+  //   this.y.range([0, this.height]);
+  //   this.updatePoints(this.element.selectAll('.point'))
+  //   this.element.selectAll('.line-segment, .line-segment-overlay').attr("d", _this.valueline.bind(_this));
+  //   this.element.selectAll('.me').attr("y2", function(d) { return _this.y(_this.bottom); });
+  //   this.element.selectAll('.calendar').attr("height", _this.height);
+  //   this.drawAxis();
+  //   this.element.attr("height", this.height);
+  //   this.zoomStartPoint = null;
+  // }
 }
 
 
 Chart.prototype.drawCalendar = function(){
   var _this = this;
+  this.element.append("text")
+    .attr("class", "zoom-button")
+    .text('+')
+    .attr("x", "60")
+    .attr("y", "100")
+    .on("click", _this.zoomIn.bind(this))
+  this.element.append("text")
+    .attr("class", "zoom-button")
+    .text('-')
+    .attr("x", "70")
+    .attr("y", "100")
+    .on("click", _this.zoomOut.bind(this))
+
   this.element.append("rect")
     .attr("class", "calendar")
     .attr("height", _this.height)
     .attr("fill",  "url(#rainbow-gradient)")
-    .on("mousedown", _this.zoomStart.bind(_this))
-    .on("mouseleave", _this.zoomStop.bind(_this))
+    // .on("mousedown", _this.zoomStart.bind(_this))
+    // .on("mouseleave", _this.zoomStop.bind(_this))
     // .on("mousemove", _this.zoom.bind(_this))
-    .on("mouseup", _this.zoom.bind(_this));
+    // .on("mouseup", _this.zoomStop.bind(_this));
 }
 
 Chart.prototype.drawAxis = function(){
@@ -316,27 +356,26 @@ Chart.prototype.highlightLine = function(d){
   var selectedNodes = this.node.filter(function(l) { return l.friends.indexOf(d.friend) !== -1 });
   this.showVenueInfo(selectedNodes)
   selectedNodes.select(".point").attr("opacity", "1");
-  $('<div id="name-card">'+d.friend.name+'</div>')
-    .css('color', d.friend.color)
-    .css('left', d3.event.pageX-115)
-    .css('top', d3.event.pageY-10)
-    .appendTo('body');
+  this.element.append("text")
+    .attr("class", "name-card")
+    .text(d.friend.name)
+    .attr("text-anchor", "end")
+    .attr("fill", d.friend.color)
+    .attr("x", function(d) { return d3.event.pageX-12 })
+    .attr("y", function(d) { return d3.event.pageY-6 });
 }
 Chart.prototype.unHighlightLine = function(d){
   this.element.selectAll(".line-segment").attr("opacity", "1").style("stroke-width", "1px");
   this.element.selectAll(".point").attr("opacity", "1");
   this.element.selectAll(".label").remove();
-  $('#name-card').remove();
+  this.element.selectAll('.name-card').remove();
 }
 
-$(document).ready(function(){
-  var data = $('#init-data').data('all');
-  var chart = new Chart({
-    data: parseData(data.top, data.lines),
-    width: $(window).width(),
-    height: 20000,
-    top: data.top,
-    bottom: data.top+data.full_length
-  });
-
-})
+var data = JSON.parse(document.getElementById("init-data").dataset.all);
+var chart = new Chart({
+  data: parseData(data.top, data.lines),
+  width: window.innerWidth-15,
+  height: 20000,
+  top: data.top,
+  bottom: data.top+data.full_length
+});
