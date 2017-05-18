@@ -49,10 +49,10 @@ class UsersController < ApplicationController
     length = @friend.checkins.order('time ASC').last.time - top
 
     @initData = {}
-    @initData['top'] = top
-    @initData['full_length'] = length
+    @initData['top'] = top*1000
+    @initData['full_length'] = length*1000
     @initData['lines'] = [@friend]
-    @initData['points'] = @friend.checkins.includes(:friends)
+    # @initData['points'] = @friend.checkins.includes(:friends)
     @initData['secret'] = @user.secret
     @initData['single'] = @friend.url_id
     @initData['user_id'] = @user.url_id

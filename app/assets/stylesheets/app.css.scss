@@ -8,6 +8,10 @@ $blue: #47bad9;
   cursor: pointer;
   fill: none;
   stroke-width: 1px;
+
+  &.hidden {
+    opacity: 0;
+  }
 }
 .line-segment-overlay {
   fill: none;
@@ -20,6 +24,9 @@ $blue: #47bad9;
   stroke-width: 2px;
   // width: 10px;
   // height: 10px;
+  &.hidden {
+    opacity: 0;
+  }
 }
 .rect-pattern {
   fill: none;

@@ -1,7 +1,7 @@
 function parseData(top, data) {
   var lineSegments = [];
   var points = [];
-  for (var i=0;i<(data.length-1);i++){
+  for (var i=0;i<(data.length);i++){
     var friend = data[i];
     var pos = i%2 === 0;
     var l = {
@@ -45,10 +45,13 @@ function pointsWidth(l){
 
 var Chart = function(opts) {
   this.data = opts.data;
+  this.user_id = opts.user_id;
   this.width = opts.width;
   this.height = opts.height;
   this.top = opts.top;
   this.bottom = opts.bottom;
+  this.single = opts.single;
+  this.allFriends = opts.single === false ? true : false;
   this.zoomStartPoint = null;
 
   this.draw();
@@ -177,6 +180,7 @@ Chart.prototype.drawLines = function(){
     .attr("d", _this.valueline.bind(_this))
     .on("mouseover", _this.highlightLine.bind(_this))
     .on("mouseout", _this.unHighlightLine.bind(_this))
+    .on("click", _this.selectLine.bind(_this))
 }
 
 Chart.prototype.drawPoints = function() {
@@ -238,6 +242,11 @@ Chart.prototype.zoom = function(){
   t0.selectAll('.line-segment, .line-segment-overlay').attr("d", _this.valueline.bind(_this));
   t0.selectAll('.me').attr("y2", function(d) { return _this.y(_this.bottom); });
   t0.selectAll('.calendar').attr("height", _this.height);
+  if (this.single) {
+    console.log('yes')
+    console.log(t0.selectAll(".label"))
+    t0.selectAll(".label-text").attr("y", function(d) { return _this.y(d.date); })
+  }
   this.drawAxis();
   t0.attr("height", this.height);
   // this.zoomStartPoint = null;
@@ -337,6 +346,9 @@ Chart.prototype.showVenueInfo = function(showNode, d){
   }
 }
 Chart.prototype.highlightNode = function(d){
+  if (this.single) {
+    return;
+  }
   this.element.selectAll(".line-segment, .point").attr("opacity", "0.3")
   var showNode = this.node.filter(function(p) { return p.foursquare_id === d.foursquare_id });
   showNode.select(".point").attr("opacity", "1");
@@ -345,17 +357,14 @@ Chart.prototype.highlightNode = function(d){
   selectedLines.attr("opacity", "1").style("stroke-width", "3px")
 }
 Chart.prototype.unHighlightNode = function(d){
+  if (this.single) {
+    return;
+  }
   this.element.selectAll(".label").remove()
   this.element.selectAll(".line-segment").attr("opacity", "1").style("stroke-width", "1px");
   this.element.selectAll(".point").attr("opacity", "1");
 }
 Chart.prototype.highlightLine = function(d){
-  this.element.selectAll(".line-segment, .point").attr("opacity", "0.3")
-  var showLine = this.element.selectAll(".line-segment").filter(function(l) { return l.friend.foursquare_id === d.friend.foursquare_id });
-  showLine.attr("opacity", "1").style("stroke-width", "3px");
-  var selectedNodes = this.node.filter(function(l) { return l.friends.indexOf(d.friend) !== -1 });
-  this.showVenueInfo(selectedNodes)
-  selectedNodes.select(".point").attr("opacity", "1");
   this.element.append("text")
     .attr("class", "name-card")
     .text(d.friend.name)
@@ -363,19 +372,57 @@ Chart.prototype.highlightLine = function(d){
     .attr("fill", d.friend.color)
     .attr("x", function(d) { return d3.event.pageX-12 })
     .attr("y", function(d) { return d3.event.pageY-6 });
+  if (this.single) {
+    return;
+  }
+  this.element.selectAll(".line-segment, .point").attr("opacity", "0.3")
+  var showLine = this.element.selectAll(".line-segment").filter(function(l) { return l.friend.foursquare_id === d.friend.foursquare_id });
+  showLine.attr("opacity", "1").style("stroke-width", "3px");
+  var selectedNodes = this.node.filter(function(l) { return l.friends.indexOf(d.friend) !== -1 });
+  this.showVenueInfo(selectedNodes)
+  selectedNodes.select(".point").attr("opacity", "1");
 }
 Chart.prototype.unHighlightLine = function(d){
+  this.element.selectAll('.name-card').remove();
+  if (this.single) {
+    return;
+  }
   this.element.selectAll(".line-segment").attr("opacity", "1").style("stroke-width", "1px");
   this.element.selectAll(".point").attr("opacity", "1");
   this.element.selectAll(".label").remove();
-  this.element.selectAll('.name-card').remove();
+}
+Chart.prototype.selectLine = function(d){
+  if (this.allFriends) {
+    if (this.single) {
+      window.history.pushState(null, null, "/u/" + this.user_id)
+      this.single = false;
+      this.element.selectAll(".line-segment").attr("opacity", "1").style("stroke-width", "1px");
+      this.element.selectAll(".point").classed("hidden", false)
+      this.element.selectAll(".line-segment-overlay").attr("pointer-events", "auto")
+      this.element.selectAll(".label").remove();
+    } else {
+      window.history.pushState(null, null, "/f/" + d.friend.url_id)
+      this.single = true;
+      this.element.selectAll(".line-segment").attr("opacity", "0")
+      this.element.selectAll(".point").classed("hidden", true)
+      this.element.selectAll(".line-segment-overlay").attr("pointer-events", "none")
+      this.element.selectAll(".line-segment").filter(function(l) { return l.friend.foursquare_id === d.friend.foursquare_id }).attr("opacity", "1").style("stroke-width", "3px");
+      this.element.selectAll(".line-segment-overlay").filter(function(l) { return l.friend.foursquare_id === d.friend.foursquare_id }).attr("pointer-events", "auto");
+      var selectedNodes = this.node.filter(function(l) { return l.friends.indexOf(d.friend) !== -1 });
+      this.showVenueInfo(selectedNodes)
+      selectedNodes.select(".point").classed("hidden", false);
+    }
+  }
+
 }
 
 var data = JSON.parse(document.getElementById("init-data").dataset.all);
 var chart = new Chart({
   data: parseData(data.top, data.lines),
+  single: data.single,
   width: window.innerWidth-15,
   height: 20000,
   top: data.top,
-  bottom: data.top+data.full_length
+  bottom: data.top+data.full_length,
+  user_id: data.user_id
 });
