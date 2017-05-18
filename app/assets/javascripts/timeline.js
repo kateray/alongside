@@ -211,14 +211,6 @@ Chart.prototype.updatePoints = function(point){
     .attr("y", function(d) { return _this.y(d.date); });
 }
 
-Chart.prototype.zoomStart = function(){
-  this.zoomStartPoint = d3.event.pageY;
-}
-
-Chart.prototype.zoomStop = function(){
-  this.zoomStartPoint = null;
-}
-
 Chart.prototype.zoomIn = function(){
   this.height = Math.floor(this.height * 1.2);
   this.zoom()
@@ -230,11 +222,6 @@ Chart.prototype.zoomOut = function(){
 }
 
 Chart.prototype.zoom = function(){
-  // if (dir === 'in') {
-  //   this.height = this.height * 1.2;
-  // } else {
-  //   this.height = this.height * 0.8;
-  // }
   var _this = this;
   var t0 = this.element.transition().duration(550);
   this.y.range([0, this.height]);
@@ -249,59 +236,25 @@ Chart.prototype.zoom = function(){
   }
   this.drawAxis();
   t0.attr("height", this.height);
-  // this.zoomStartPoint = null;
-
-  // if (this.zoomStartPoint) {
-  //   var _this = this;
-  //   var dist = d3.event.pageY - this.zoomStartPoint;
-  //   // person dragged down, so zoom in
-  //   if (dist < 0) {
-  //     this.height = this.height/(Math.abs(dist)*100/this.height + 1)
-  //
-  //   // person dragged up, so zoom out
-  //   } else {
-  //     this.height = this.height*(Math.abs(dist)*100/this.height + 1)
-  //
-  //   }
-  //   // var height = this.height;
-  //   // this.height = height + (dist*10000000)/height;
-  //   // var t0 = this.element.transition().duration(550);
-  //   console.log(this.height)
-  //   this.y.range([0, this.height]);
-  //   this.updatePoints(this.element.selectAll('.point'))
-  //   this.element.selectAll('.line-segment, .line-segment-overlay').attr("d", _this.valueline.bind(_this));
-  //   this.element.selectAll('.me').attr("y2", function(d) { return _this.y(_this.bottom); });
-  //   this.element.selectAll('.calendar').attr("height", _this.height);
-  //   this.drawAxis();
-  //   this.element.attr("height", this.height);
-  //   this.zoomStartPoint = null;
-  // }
 }
 
 
 Chart.prototype.drawCalendar = function(){
   var _this = this;
-  this.element.append("text")
-    .attr("class", "zoom-button")
-    .text('+')
-    .attr("x", "60")
-    .attr("y", "100")
-    .on("click", _this.zoomIn.bind(this))
-  this.element.append("text")
-    .attr("class", "zoom-button")
-    .text('-')
-    .attr("x", "70")
-    .attr("y", "100")
+
+  d3.select("body").append("div")
+    .attr("class", "zoom-button minus")
+    .html('-')
     .on("click", _this.zoomOut.bind(this))
+  d3.select("body").append("div")
+    .attr("class", "zoom-button plus")
+    .html('+')
+    .on("click", _this.zoomIn.bind(this))
 
   this.element.append("rect")
     .attr("class", "calendar")
     .attr("height", _this.height)
-    .attr("fill",  "url(#rainbow-gradient)")
-    // .on("mousedown", _this.zoomStart.bind(_this))
-    // .on("mouseleave", _this.zoomStop.bind(_this))
-    // .on("mousemove", _this.zoom.bind(_this))
-    // .on("mouseup", _this.zoomStop.bind(_this));
+    .attr("fill",  "url(#rainbow-gradient)");
 }
 
 Chart.prototype.drawAxis = function(){
@@ -421,7 +374,7 @@ var chart = new Chart({
   data: parseData(data.top, data.lines),
   single: data.single,
   width: window.innerWidth-15,
-  height: 20000,
+  height: Math.floor(data.full_length/5000000),
   top: data.top,
   bottom: data.top+data.full_length,
   user_id: data.user_id
