@@ -155,17 +155,12 @@ Chart.prototype.valueline = function(d){
 Chart.prototype.drawLines = function(){
   var _this = this;
 
-  // this.element.selectAll(".line")
   this.element.append("line")
     .attr("class", "me")
     .attr("x1", function(d) { return _this.x(3); })
     .attr("y1", function(d) { return _this.y(_this.top); })
     .attr("x2", function(d) { return _this.x(3); })
     .attr("y2", function(d) { return _this.y(_this.bottom); });
-
-  // var friendLine = this.element.selectAll(".line")
-  //     .data(this.data.lines)
-  //   .enter().append("g").attr("class", "line");
 
   this.element.selectAll(".line-segment")
     .data(this.data.lines)
@@ -182,8 +177,6 @@ Chart.prototype.drawLines = function(){
     .attr("d", _this.valueline.bind(_this))
     .on("mouseover", _this.highlightLine.bind(_this))
     .on("mouseout", _this.unHighlightLine.bind(_this))
-
-  // return friendLine;
 }
 
 Chart.prototype.drawPoints = function() {
