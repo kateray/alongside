@@ -7,7 +7,6 @@ $blue: #47bad9;
 .line-segment {
   cursor: pointer;
   fill: none;
-  stroke-width: 1px;
 
   &.hidden {
     opacity: 0;

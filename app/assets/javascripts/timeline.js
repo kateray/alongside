@@ -3,9 +3,7 @@ function parseData(top, data) {
   var points = [];
   for (var i=0;i<(data.length);i++){
     var friend = data[i];
-    var pos = i%2 === 0;
     var l = {
-      pos: pos,
       friend: friend,
       stops: []
     }
@@ -144,7 +142,7 @@ Chart.prototype.calculatePathFromPts = function(source, target, dir) {
 }
 
 Chart.prototype.valueline = function(d){
-  var dir = d.pos ? '1' : '0';
+  var dir = d.friend.positive ? '1' : '0';
   var starting = this.x(3) + "," + this.y(this.top-1000000000000);
   var pathValue = "M"+starting+this.calculatePathFromPts([3,this.top-1000000000000], d.stops[0], dir);
   for (var i=0;i<d.stops.length-1;i++){
@@ -152,6 +150,7 @@ Chart.prototype.valueline = function(d){
     var target = d.stops[i+1];
     pathValue = pathValue + this.calculatePathFromPts(source, target, dir);
   }
+  pathValue = pathValue + this.calculatePathFromPts(d.stops[d.stops.length-1], [3,this.bottom+1000000000000], dir);
   return pathValue;
 }
 
@@ -169,6 +168,7 @@ Chart.prototype.drawLines = function(){
     .data(this.data.lines)
     .enter().append("path")
     .attr("class", "line-segment")
+    .attr("stroke-width", function(d) {return _this.single ? '3px' : '1px'})
     .attr('stroke', function(d) { return d.friend.color; })
     .attr("d", _this.valueline.bind(_this));
 

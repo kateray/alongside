@@ -12,9 +12,18 @@ class Friend < ActiveRecord::Base
     end while Friend.pluck(:url_id).include? url_id
   end
 
+  def positive
+    if user.friends.index(self)%2 === 0
+      return true
+    else
+      return false
+    end
+  end
+
   def as_json(options)
     super(
       except: [:id, :created_at, :updated_at, :user_id],
+      methods: :positive,
       include: {checkins: {only: [:date, :shout, :venue_name, :foursquare_id], methods: :date }}
     )
   end
