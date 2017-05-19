@@ -84,7 +84,7 @@ Chart.prototype.createScales = function(){
 }
 
 Chart.prototype.setupDefs = function(){
-  var fullTime = d3.utcMonths(this.top, this.bottom);
+  var fullTime = d3.timeMonths(this.top, this.bottom);
   var days = d3.timeDays(this.top, this.bottom).length;
 
   var top = this.top
@@ -254,6 +254,7 @@ Chart.prototype.zoom = function(){
   t0.selectAll('.line-segment, .line-segment-overlay').attr("d", _this.valueline.bind(_this));
   t0.selectAll('.me').attr("y2", function(d) { return _this.y(_this.bottom); });
   t0.selectAll('.calendar').attr("height", _this.height);
+  d3.select(".year-tick").html(function(){ return _this.y.invert(window.pageYOffset).getFullYear()})
   if (this.single) {
     t0.selectAll(".label-text").attr("y", function(d) { return _this.y(d.date); })
   }
@@ -369,6 +370,10 @@ Chart.prototype.drawCalendar = function(){
     .attr("class", "calendar")
     .attr("height", _this.height)
     .attr("fill",  "url(#rainbow-gradient)");
+
+  d3.select("body").append("div")
+    .attr("class", "year-tick")
+    .html(function(){ return _this.y.invert(window.pageYOffset).getFullYear()})
 }
 
 Chart.prototype.drawAxis = function(){
@@ -381,6 +386,11 @@ Chart.prototype.drawAxis = function(){
       .ticks(d3.timeMonth)
       .tickFormat(d3.timeFormat("%b"))
     );
+
+    d3.select("body").on("wheel.zoom", function(){
+      var year = _this.y.invert(window.pageYOffset).getFullYear();
+      d3.select(".year-tick").html(year)
+    })
 }
 
 Chart.prototype.showVenueInfo = function(showNode, d){
@@ -399,7 +409,7 @@ Chart.prototype.showVenueInfo = function(showNode, d){
     var labelFriends = label.append("text")
       .attr("class", "label-friends")
       .attr("text-anchor", "end")
-      .attr("transform", "translate(-15,0)")
+      .attr("transform", "translate(-20,0)")
       .attr("x", function(d) { return _this.x(3); })
       .attr("y", function(d) { return _this.y(d.date); })
     labelFriends.attr("y", _this.y(d.date) - (d.friends.length*16)/2 - 8);

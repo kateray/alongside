@@ -29,10 +29,6 @@ $blue: #47bad9;
     }
   }
 
-  // &:hover {
-  //   font-size: 14px;
-  // }
-
   &.logout {
     background: linear-gradient(to right, #ffbc73 , #ff846e);
     &:hover {
@@ -51,6 +47,13 @@ $blue: #47bad9;
       background: linear-gradient(to right, #ff7da4 , #ff75dc);
     }
   }
+}
+
+.year-tick {
+  position: fixed;
+  top: 10px;
+  width: 50px;
+  text-align: center;
 }
 
 .privacy-container {
