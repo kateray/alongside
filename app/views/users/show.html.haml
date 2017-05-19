@@ -9,7 +9,8 @@
     #reconnect
     .big_text
       Share this page with your people
-    = link_to image_tag('twitter.png'), @tweet_url, :target => "_blank"
+      %br
+      = link_to image_tag('twitter.png'), @tweet_url, :target => "_blank"
 #init-data(data-all=@initData)
 / #scroll_message
 /   = render "/svg/arrow"
@@ -18,16 +19,3 @@
 .message#public_message
   This page is now public. Share it!
   = link_to image_tag('twitter.png'), @tweet_url, :target => "_blank"
-
-%script{:type => "text/template", :id => "hovercardTemplate"}
-  .place
-    <%= venue_name %>
-  .date
-    <%= date %>
-    <%= time %>
-  <% if (shout) { %>
-  .shout
-    "<%= shout %>"
-  <% } %>
-  .friends
-    <%= friends %>

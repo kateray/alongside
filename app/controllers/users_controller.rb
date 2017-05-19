@@ -34,8 +34,10 @@ class UsersController < ApplicationController
     @initData['lines'] = @user.friends.includes(:checkins).order('checkins.time ASC')
     # @initData['points'] = @user.checkins.includes(:friends)
     @initData['secret'] = @user.secret
+    @initData['tweet_url'] = @tweet_url
     @initData['single'] = false
     @initData['user_id'] = @user.url_id
+    @initData['current_user'] = current_user ? current_user.url_id : false
     @initData['action'] = 'show'
     @initData = @initData.to_json
 
@@ -56,6 +58,7 @@ class UsersController < ApplicationController
     @initData['secret'] = @user.secret
     @initData['single'] = @friend.url_id
     @initData['user_id'] = @user.url_id
+    @initData['current_user'] = current_user ? current_user.url_id : false
     @initData['action'] = 'friends'
     @initData = @initData.to_json
 
@@ -68,7 +71,8 @@ class UsersController < ApplicationController
 
   def update
     @user = current_user
-
+    puts '*'*80
+    puts params
     if @user.update_attributes(params[:user])
       if @user.secret
         @message = 'Page is private'

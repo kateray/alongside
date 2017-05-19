@@ -1,22 +1,24 @@
-#nav
-  %input{:type=>"checkbox", :id=>"toggle-animation", :class=>"switch"}
-  %label{:for=>"toggle-animation"} animation
-  - if current_user
-    %a{:href => '/logout', :class => 'nav_button'}
-      %img{:src => '/assets/exit.png'}
-    - if params[:action] == 'friends'
-      %a{:href => '/u/' + @user.url_id.to_s, :class => 'nav_button'}
-        = render '/svg/home'
-    - elsif params[:action] == 'show' && current_user == @user
-      %a{:href => '/loading', :class => 'nav_button'}
-        = render '/svg/refresh'
-      .nav_button#toggle_privacy
-        .locked
-          = render '/svg/lock'
-        .unlocked
-          = render '/svg/unlock'
-  - else
-    %a{:href => '/auth/foursquare', :class => 'nav_button'}
-      %img{:src => '/assets/foursquare-button.png'}
-    .nav_button
-      Think this page is awesome and want one of your own?
+-# #nav
+-#   - if current_user
+-#     %a{:href => '/logout', :id => 'logout', :class => 'nav_button logout', :onMouseover => "this.html=logout"}
+-#       -# logout
+-#       %img{:src => '/assets/exit.png'}
+-#     - if params[:action] == 'friends'
+-#       %a{:href => '/u/' + @user.url_id.to_s, :class => 'nav_button'}
+-#         = render '/svg/home'
+-#     - elsif params[:action] == 'show' && current_user == @user
+-#       %a{:href => '/loading', :class => 'nav_button refresh'}
+-#         -# refresh data
+-#         = render '/svg/refresh'
+-#       .nav_button.share
+-#         = render '/svg/unlock'
+-#         -# make private
+-#         .locked
+-#           = render '/svg/lock'
+-#         .unlocked
+-#           = render '/svg/unlock'
+-#   - else
+-#     %a{:href => '/auth/foursquare', :class => 'nav_button'}
+-#       %img{:src => '/assets/foursquare-button.png'}
+-#     .nav_button
+-#       Think this page is awesome and want one of your own?

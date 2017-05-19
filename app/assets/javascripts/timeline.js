@@ -1,4 +1,4 @@
-function parseData(top, data) {
+function parseData(data) {
   var lineSegments = [];
   var points = [];
   for (var i=0;i<(data.length);i++){
@@ -44,11 +44,14 @@ function pointsWidth(l){
 var Chart = function(opts) {
   this.data = opts.data;
   this.user_id = opts.user_id;
+  this.current_user = opts.current_user;
+  this.secret = opts.secret;
   this.width = opts.width;
   this.height = opts.height;
   this.top = opts.top;
   this.bottom = opts.bottom;
   this.single = opts.single;
+  this.tweet_url = opts.tweet_url;
   this.allFriends = opts.single === false ? true : false;
   this.zoomStartPoint = null;
 
@@ -57,6 +60,7 @@ var Chart = function(opts) {
 
 Chart.prototype.draw = function(){
   this.element = d3.select("#timeline").append("svg").attr("width", this.width).attr("height", this.height);
+  this.drawNav();
   this.createScales();
   this.setupDefs();
   this.drawLines();
@@ -65,6 +69,9 @@ Chart.prototype.draw = function(){
   this.drawCalendar();
   this.yAxis = this.element.append('g');
   this.drawAxis();
+  if (!this.allFriends) {
+    this.showVenueInfo(this.node)
+  }
 }
 
 Chart.prototype.createScales = function(){
@@ -250,6 +257,81 @@ Chart.prototype.zoom = function(){
   t0.attr("height", this.height);
 }
 
+Chart.prototype.togglePrivacy = function(){
+  var _this = this;
+  var val = !this.secret;
+  d3.request("/users/privacy").header("Content-Type", "application/json").post(JSON.stringify({user: {secret: val}}), function(response){
+    _this.secret = val;
+    _this.updatePrivacyButton();
+  });
+}
+
+Chart.prototype.updatePrivacyButton = function(){
+  var symbol = this.secret ? "<img src='/assets/lock.png' />" : "<img src='/assets/unlock.png' />";
+  var text = this.secret ? "make public" : "make private";
+  var privacyMessage = this.secret ? "This page is private right now." : "This page is public. Share it! <a href="+this.tweet_url+" target='_blank'><img src='/assets/twitter-small.png' /></a>";
+
+  if (this.secret) {
+    d3.selectAll('.big_text').attr("style", "display:none")
+  } else {
+    d3.selectAll('.big_text').attr("style", "display:block")
+  }
+  d3.selectAll(".privacy")
+    .html(symbol)
+
+  d3.selectAll(".privacy-message")
+    .html(privacyMessage)
+
+  d3.selectAll(".privacy-things")
+    .on("mouseover", function(){console.log(text); d3.selectAll('.privacy').html(text); d3.selectAll(".privacy-container").classed("hidden", false);})
+    .on("mouseleave", function(){d3.selectAll('.privacy').html(symbol); d3.selectAll(".privacy-container").classed("hidden", true);});
+}
+
+Chart.prototype.drawNav = function(){
+  var _this = this;
+  d3.selectAll(".nav").remove();
+
+  var nav = d3.select("body").append("div")
+    .attr("class", "nav")
+
+
+  if (this.current_user) {
+    if (!this.single && this.current_user === this.user_id) {
+      nav.append("div")
+        .attr("class", "nav-button privacy privacy-things")
+        .on("click", _this.togglePrivacy.bind(this));
+
+      nav.append("a")
+        .attr("href", "/loading")
+        .attr("class", "nav-button refresh")
+        .html("<img src='/assets/refresh.png' />")
+        .on("mouseover", function(){d3.select(this).html("refresh data")})
+        .on("mouseleave", function(){d3.select(this).html("<img src='/assets/refresh.png' />")})
+    } else {
+      nav.append("a")
+        .attr("href", "/u/"+this.user_id)
+        .attr("class", "nav-button home")
+        .html("<img src='/assets/home.png' />")
+        .on("mouseover", function(){d3.select(this).html("home")})
+        .on("mouseleave", function(){d3.select(this).html("<img src='/assets/home.png' />")})
+    }
+
+    nav.append("a")
+      .attr("href", "/logout")
+      .attr("class", "nav-button logout")
+      .html("<img src='/assets/exit.png' />")
+      .on("mouseover", function(){d3.select(this).html("logout")})
+      .on("mouseleave", function(){d3.select(this).html("<img src='/assets/exit.png' />")})
+
+    nav.append("div")
+      .attr("class", "privacy-container hidden privacy-things")
+      .append("div")
+      .attr("class", "privacy-message")
+
+    this.updatePrivacyButton()
+  }
+}
+
 
 Chart.prototype.drawCalendar = function(){
   var _this = this;
@@ -257,10 +339,14 @@ Chart.prototype.drawCalendar = function(){
   d3.select("body").append("div")
     .attr("class", "zoom-button minus")
     .html('-')
+    .on("mouseover", function(){d3.select(this).html("zoom out")})
+    .on("mouseleave", function(){d3.select(this).html("-")})
     .on("click", _this.zoomOut.bind(this))
   d3.select("body").append("div")
     .attr("class", "zoom-button plus")
     .html('+')
+    .on("mouseover", function(){d3.select(this).html("zoom in")})
+    .on("mouseleave", function(){d3.select(this).html("+")})
     .on("click", _this.zoomIn.bind(this))
 
   this.element.append("rect")
@@ -273,10 +359,11 @@ Chart.prototype.drawAxis = function(){
   var _this = this;
 
   this.yAxis
-    .attr('transform', 'translate(50,0)')
+    .attr("class", "y-axis")
+    .attr('transform', 'translate(45,0)')
     .call(d3.axisLeft(_this.y)
       .ticks(d3.timeMonth)
-      .tickFormat(d3.timeFormat("%b %Y"))
+      .tickFormat(d3.timeFormat("%b"))
     );
 }
 
@@ -357,17 +444,20 @@ Chart.prototype.unHighlightLine = function(d){
   this.element.selectAll(".label").remove();
 }
 Chart.prototype.selectLine = function(d){
-  if (this.allFriends) {
+  var _this = this;
+  if (this.allFriends && this.current_user === this.user_id) {
     if (this.single) {
       window.history.pushState(null, null, "/u/" + this.user_id)
       this.single = false;
+      this.drawNav();
       this.element.selectAll(".line-segment").attr("opacity", "1").style("stroke-width", "1px");
       this.element.selectAll(".point").classed("hidden", false)
       this.element.selectAll(".line-segment-overlay").attr("pointer-events", "auto")
-      this.element.selectAll(".label").remove();
+      d3.selectAll(".label, .back-button, .share-friend-message").remove();
     } else {
       window.history.pushState(null, null, "/f/" + d.friend.url_id)
       this.single = true;
+      this.drawNav();
       this.element.selectAll(".line-segment").attr("opacity", "0")
       this.element.selectAll(".point").classed("hidden", true)
       this.element.selectAll(".line-segment-overlay").attr("pointer-events", "none")
@@ -376,6 +466,38 @@ Chart.prototype.selectLine = function(d){
       var selectedNodes = this.node.filter(function(l) { return l.friends.indexOf(d.friend) !== -1 });
       this.showVenueInfo(selectedNodes)
       selectedNodes.select(".point").classed("hidden", false);
+      function calcStyle(){
+        var style = "color: "+d.friend.color+";";
+        if (d.friend.positive) {
+          style = style + "left: 9%;";
+        } else {
+          style = style + "right: 7.5%;";
+        }
+        return style;
+      }
+      function genMessage(){
+        var times = d.friend.checkins.length;
+        var format = d3.timeFormat("%B %e, %Y");
+        var date = format(d.friend.checkins[0].date);
+        var msg = "You and "+d.friend.name+" have checked in together ";
+        msg = msg + times + (times > 1 ? " times " : " time ");
+        msg = msg + "since "+date+". ";
+        msg = msg + "Why don't you share <a href='"+window.location.href+"'>this page</a> with them?";
+        return msg;
+      }
+      d3.select("body").append("div")
+        .attr("class", "back-button")
+        .attr("style", "color:"+d.friend.color)
+        .html("&#x2190; Back to all friends")
+        .on("click", _this.selectLine.bind(_this))
+      d3.select("body").append("div")
+        .attr("class", "share-friend-message")
+        .attr("style", calcStyle)
+        .html(genMessage)
+      .append("div")
+        .attr("class", "share-friend-message-close")
+        .html("&times; hide")
+        .on("click", function(){d3.selectAll(".share-friend-message").remove();})
     }
   }
 
@@ -383,11 +505,14 @@ Chart.prototype.selectLine = function(d){
 
 var data = JSON.parse(document.getElementById("init-data").dataset.all);
 var chart = new Chart({
-  data: parseData(data.top, data.lines),
+  data: parseData(data.lines),
   single: data.single,
   width: window.innerWidth-15,
-  height: Math.floor(data.full_length/5000000),
-  top: data.top,
-  bottom: data.top+data.full_length,
-  user_id: data.user_id
+  height: Math.floor((data.full_length+400000000)/5000000),
+  top: data.top-200000000,
+  bottom: data.top+data.full_length+200000000,
+  user_id: data.user_id,
+  current_user: data.current_user,
+  secret: data.secret,
+  tweet_url: data.tweet_url
 });
