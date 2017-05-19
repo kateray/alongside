@@ -73,7 +73,10 @@ Chart.prototype.createScales = function(){
 }
 
 Chart.prototype.setupDefs = function(){
-  var fullTime = d3.timeMonths(this.top, this.bottom);
+  var fullTime = d3.utcMonths(this.top, this.bottom);
+  var days = d3.timeDays(this.top, this.bottom).length;
+
+  var top = this.top
 
   var defs = this.element.append("defs");
   var filter = defs.append("filter")
@@ -85,17 +88,28 @@ Chart.prototype.setupDefs = function(){
   filter.append("feComposite")
     .attr("in", "SourceGraphic");
 
-  var colorMonths = ['white', 'blue', 'green', 'yellow', 'red', 'purple', 'white', 'blue', 'green', 'yellow', 'red', 'purple'];
-
   var rainbow = defs.append("linearGradient")
     .attr("id", "rainbow-gradient")
     .attr("x2", "0%")
     .attr("y2", "100%");
 
+
+  var colorMonths = ['#ffffff', '#04f2ff', '#03ff9e', '#03ff46', '#84ff01', '#ddff00', '#ffdd00', '#ff8c00', '#ff4d00', '#ff0073', '#ff01dd', '#7402ff'];
+
+  var m = new Date(this.top).getMonth() -1;
+  if (m < 0) {
+    m = 12+1;
+  }
+  rainbow.append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", colorMonths[m])
+
   fullTime.forEach(function(t, i){
-    var color = colorMonths[t.getMonth()-1];
+    var diff = d3.timeDay.count(top, t);
+    var percent = diff/days*100;
+    var color = colorMonths[t.getMonth()]
     rainbow.append("stop")
-      .attr("offset", i/fullTime.length*100+'%')
+      .attr("offset", percent+'%')
       .attr("stop-color", color);
   })
 
@@ -230,8 +244,6 @@ Chart.prototype.zoom = function(){
   t0.selectAll('.me').attr("y2", function(d) { return _this.y(_this.bottom); });
   t0.selectAll('.calendar').attr("height", _this.height);
   if (this.single) {
-    console.log('yes')
-    console.log(t0.selectAll(".label"))
     t0.selectAll(".label-text").attr("y", function(d) { return _this.y(d.date); })
   }
   this.drawAxis();
