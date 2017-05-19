@@ -1,7 +1,6 @@
 - content_for :scripts do
   = javascript_include_tag "timeline"
 
-= render "layouts/nav"
 #timeline
 
 .extra_space
@@ -12,10 +11,3 @@
       %br
       = link_to image_tag('twitter.png'), @tweet_url, :target => "_blank"
 #init-data(data-all=@initData)
-/ #scroll_message
-/   = render "/svg/arrow"
-.message#private_message
-  This page is now private
-.message#public_message
-  This page is now public. Share it!
-  = link_to image_tag('twitter.png'), @tweet_url, :target => "_blank"

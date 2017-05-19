@@ -21,6 +21,14 @@ $blue: #47bad9;
     margin-bottom: -5px;
   }
 
+  &.login {
+    width: 350px;
+    background: linear-gradient(to right, #ffbc73 , #ff846e);
+    &:hover {
+      background: linear-gradient(to right, #ff846e , #ffbc73);
+    }
+  }
+
   // &:hover {
   //   font-size: 14px;
   // }

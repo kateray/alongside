@@ -1,11 +1,15 @@
-function parseData(data) {
+function parseData(data, bottom) {
   var lineSegments = [];
   var points = [];
+  var missed = [];
   for (var i=0;i<(data.length);i++){
     var friend = data[i];
     var l = {
       friend: friend,
       stops: []
+    }
+    if (friend.checkins.length > 8 && (bottom - friend.checkins[friend.checkins.length-1].date) > 5000000000) {
+      missed.push(friend)
     }
     for (var ii=0;ii<(friend.checkins.length);ii++){
       var pt = friend.checkins[ii];
@@ -26,7 +30,7 @@ function parseData(data) {
     }
     lineSegments.push(l)
   }
-  return {lines: lineSegments, points: points};
+  return {lines: lineSegments, points: points, missed: missed};
 }
 
 function pointFill(d) {
@@ -271,10 +275,16 @@ Chart.prototype.updatePrivacyButton = function(){
   var text = this.secret ? "make public" : "make private";
   var privacyMessage = this.secret ? "This page is private right now." : "This page is public. Share it! <a href="+this.tweet_url+" target='_blank'><img src='/assets/twitter-small.png' /></a>";
 
-  if (this.secret) {
-    d3.selectAll('.big_text').attr("style", "display:none")
+  if (this.secret || this.single) {
+    d3.selectAll('.big_text, #reconnect').attr("style", "display:none")
   } else {
-    d3.selectAll('.big_text').attr("style", "display:block")
+    d3.selectAll('.big_text, #reconnect').attr("style", "display:block")
+    if (this.data.missed.length > 0) {
+      var friend = this.data.missed[Math.floor(Math.random()*this.data.missed.length)]
+      d3.select('#reconnect')
+        .attr("style", "color:"+friend.color)
+        .html("Friends are important. Why don't you give " + friend.name + " a call?")
+    }
   }
   d3.selectAll(".privacy")
     .html(symbol)
@@ -283,7 +293,7 @@ Chart.prototype.updatePrivacyButton = function(){
     .html(privacyMessage)
 
   d3.selectAll(".privacy-things")
-    .on("mouseover", function(){console.log(text); d3.selectAll('.privacy').html(text); d3.selectAll(".privacy-container").classed("hidden", false);})
+    .on("mouseover", function(){d3.selectAll('.privacy').html(text); d3.selectAll(".privacy-container").classed("hidden", false);})
     .on("mouseleave", function(){d3.selectAll('.privacy').html(symbol); d3.selectAll(".privacy-container").classed("hidden", true);});
 }
 
@@ -293,7 +303,6 @@ Chart.prototype.drawNav = function(){
 
   var nav = d3.select("body").append("div")
     .attr("class", "nav")
-
 
   if (this.current_user) {
     if (!this.single && this.current_user === this.user_id) {
@@ -329,6 +338,13 @@ Chart.prototype.drawNav = function(){
       .attr("class", "privacy-message")
 
     this.updatePrivacyButton()
+  } else {
+    nav.append("div")
+      .attr("class", "nav-button login")
+      .html("Want your own timeline? ")
+      .append("a")
+        .attr("href", "/auth/foursquare")
+        .html("Sign in with Foursquare")
   }
 }
 
@@ -505,7 +521,7 @@ Chart.prototype.selectLine = function(d){
 
 var data = JSON.parse(document.getElementById("init-data").dataset.all);
 var chart = new Chart({
-  data: parseData(data.lines),
+  data: parseData(data.lines, data.top+data.full_length),
   single: data.single,
   width: window.innerWidth-15,
   height: Math.floor((data.full_length+400000000)/5000000),
