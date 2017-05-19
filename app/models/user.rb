@@ -32,8 +32,8 @@ class User < ActiveRecord::Base
   def get_overlaps(x)
     checkins = self.checkins
     friends = self.friends
-    colors = ['#f62323', '#f6b423', '#57d11b', '#06754a', '#3fc8e4', '#3f7ae4', '#603fe4', '#a73fe4', '#e43fa2', '#8e1e00', '#8e5b00', '#048e00', '#00768e', '#00278e', '#47008e', '#8e006e', '#ff7c7c', '#b0fbb4', '#b0fbf8', '#b0c4fb', '#ecb0fb', '#fbb0b6', '#490c03', '#493c03', '#264903', '#03493a', '#031f49', '#230349', '#490345', '#49031e']
-    
+    colors = ['#f62323', '#f6b423', '#57d11b', '#06754a', '#3fc8e4', '#3f7ae4', '#603fe4', '#a73fe4', '#e43fa2', '#8e1e00', '#8e5b00', '#048e00', '#00768e', '#00278e', '#47008e', '#8e006e', '#ff7c7c', '#6ed05c', '#17e1ba', '#91b0e6', '#ecb0fb', '#fbb0b6', '#490c03', '#493c03', '#264903', '#03493a', '#031f49', '#230349', '#490345', '#49031e']
+
     x.to_i.times do |num|
       offset = num*100
       #TODO - Pretty up url
