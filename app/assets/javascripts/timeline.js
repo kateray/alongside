@@ -76,6 +76,21 @@ Chart.prototype.draw = function(){
   if (!this.allFriends) {
     this.showVenueInfo(this.node)
   }
+
+  var didScroll = false;
+
+  d3.select("body").on("wheel.zoom", function(){
+    didScroll = true;
+  })
+
+  var _this = this;
+  setInterval(function() {
+    if ( didScroll ) {
+      didScroll = false;
+      var year = _this.y.invert(window.pageYOffset).getFullYear();
+      d3.select(".year-tick").html(year)
+    }
+  }, 100);
 }
 
 Chart.prototype.createScales = function(){
@@ -386,11 +401,6 @@ Chart.prototype.drawAxis = function(){
       .ticks(d3.timeMonth)
       .tickFormat(d3.timeFormat("%b"))
     );
-
-    d3.select("body").on("wheel.zoom", function(){
-      var year = _this.y.invert(window.pageYOffset).getFullYear();
-      d3.select(".year-tick").html(year)
-    })
 }
 
 Chart.prototype.showVenueInfo = function(showNode, d){
