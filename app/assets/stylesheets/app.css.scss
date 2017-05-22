@@ -29,22 +29,29 @@ $blue: #47bad9;
     }
   }
 
-  &.logout {
-    background: linear-gradient(to right, #ffbc73 , #ff846e);
+  &.home {
+    background: linear-gradient(to right, #72eaff , #ec8eff);
     &:hover {
-      background: linear-gradient(to right, #ff846e , #ffbc73);
+      background: linear-gradient(to right, #ec8eff , #72eaff);
+    }
+  }
+
+  &.logout {
+    background: linear-gradient(to right, #ff8268 , #ff86cc);
+    &:hover {
+      background: linear-gradient(to right, #ff86cc , #ff8268);
     }
   }
   &.privacy {
-    background: linear-gradient(to right, #00c9e5 , #00e5c4);
+    background: linear-gradient(to right, #63d3ff , #29ff6c);
     &:hover {
-      background: linear-gradient(to right, #00e5c4 , #00c9e5);
+      background: linear-gradient(to right, #29ff6c , #63d3ff);
     }
   }
   &.refresh {
-    background: linear-gradient(to right, #ff75dc , #ff7da4);
+    background: linear-gradient(to right, #fffa28 , #ffa449);
     &:hover {
-      background: linear-gradient(to right, #ff7da4 , #ff75dc);
+      background: linear-gradient(to right, #ffa449 , #fffa28);
     }
   }
 }
@@ -223,16 +230,16 @@ $blue: #47bad9;
 
   &.plus {
     right: 30px;
-    background: linear-gradient(to right, #ff93ec , #b3c5ff);
+    background: linear-gradient(to right, #63d3ff , #29ff6c);
     &:hover {
-      background: linear-gradient(to right, #b3c5ff , #ff93ec);
+      background: linear-gradient(to right, #29ff6c , #63d3ff);
     }
   }
   &.minus {
     right: 105px;
-    background: linear-gradient(to right, #faff30 , #ffcf4e);
+    background: linear-gradient(to right, #ff8268 , #ff86cc);
     &:hover {
-      background: linear-gradient(to right, #ffcf4e , #faff30);
+      background: linear-gradient(to right, #ff86cc , #ff8268);
     }
   }
 }
