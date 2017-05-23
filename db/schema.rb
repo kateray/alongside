@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20170519204107) do
+ActiveRecord::Schema.define(:version => 20170523142929) do
 
   create_table "checkins", :force => true do |t|
     t.integer  "user_id"
@@ -59,6 +59,7 @@ ActiveRecord::Schema.define(:version => 20170519204107) do
     t.datetime "updated_at",                           :null => false
     t.boolean  "god",               :default => false
     t.string   "url_id"
+    t.datetime "last_refreshed"
   end
 
 end
