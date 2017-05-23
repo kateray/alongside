@@ -1,6 +1,4 @@
-@import "compass/css3/transform";
-@import "compass/css3/transition";
-@import "compass/css3/background-size";
+
 $blue: #47bad9;
 
 // nav
@@ -302,18 +300,6 @@ $blue: #47bad9;
   }
 }
 
-@include keyframes(pulse) {
-  from {
-    @include transform(scale(1.0));
-  }
-  50% {
-    @include transform(scale(1.2));
-  }
-  to {
-    @include transform(scale(1.0));
-  }
-}
-
 html, body {
   font-family: Helvetica, Arial, sans-serif;
   min-width: 500px;
@@ -330,7 +316,6 @@ html, body {
   font-size: 14px;
   z-index: 100;
   opacity: 1;
-  @include transition(opacity, 700ms, linear);
 }
 
 a {
@@ -372,7 +357,6 @@ a {
 #home {
   height: 100%;
   background: url('/assets/background.jpg') no-repeat center center fixed;
-  @include background-size(cover);
 }
 .users #home {
   opacity: 0.2;
@@ -412,16 +396,6 @@ a {
 #info {
   position: absolute;
   z-index: 100;
-}
-
-
-#scroll_message {
-  color: #47bad9;
-  @include animation(pulse, 0, 0.75s, infinite, linear);
-  position: fixed;
-  bottom: 5px;
-  left: 50%;
-  margin-left: -35px;
 }
 
 .message {

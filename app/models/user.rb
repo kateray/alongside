@@ -1,8 +1,6 @@
 class User < ActiveRecord::Base
-  attr_accessible :secret
-
   has_many :friends
-  has_many :checkins, :order => 'time ASC'
+  has_many :checkins
 
   acts_as_authentic do |c|
     c.validate_email_field = false

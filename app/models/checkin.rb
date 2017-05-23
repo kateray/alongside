@@ -1,5 +1,5 @@
 class Checkin < ActiveRecord::Base
-  default_scope :order => "time ASC"
+  default_scope { order(:time) }
 
   belongs_to :user
   has_many :overlaps
