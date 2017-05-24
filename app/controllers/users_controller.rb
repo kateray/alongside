@@ -86,24 +86,33 @@ class UsersController < ApplicationController
   private
 
   def redirect_from_show(id)
+    puts '*'*100
+    puts id
+    puts 'hey wtf'
+    puts User.find_by_url_id(id).to_json
+    puts User.find_by_url_id(id).checkins.count
+    puts '+'*80
     if @user = User.find_by_url_id(id)
-
+      puts '*'*80
       if @user.secret == true
         unless current_user && (current_user == @user || current_user.god == true)
-          render 'public/404.html', :status => 404, :layout => false
+
+          puts 'are w heere'
+          render file: "#{Rails.root}/public/404.html", layout: false, status: 404
         end
       end
 
       if @user.checkins.blank?
+        puts 'okay so you are saying that the checkins are blank?'
         if current_user && current_user == @user
           redirect_to '/loading'
         else
-          render 'public/404.html', :status => 404, :layout => false
+          render file: "#{Rails.root}/public/404.html", layout: false, status: 404
         end
       end
 
     else
-      render 'public/404.html', :status => 404, :layout => false
+      render file: "#{Rails.root}/public/404.html", layout: false, status: 404
     end
   end
 
