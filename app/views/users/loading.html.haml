@@ -1,5 +1,8 @@
-.big_text
-  While we build your timeline, why don't you watch this classic film about friendship and coming of age in the early 1960s
-%iframe{:width=>"640", :height=>"480", :src=>"http://www.youtube.com/v/96Ze9T40gqg&autoplay=1", :frameborder=>"0"}
+- content_for :scripts do
+  = javascript_include_tag "loading"
+
+.loading-text
+  Building your timeline. You'll be redirected as soon as it's ready.
+%iframe{:width=>"100%", :height=>"800px", :src=>"https://www.youtube.com/embed/a9wnbPUgq6c?autoplay=1&showinfo=0", :frameborder=>"0"}
 
 %input#init-data{type: 'hidden', value: raw(@initData.to_s)}
