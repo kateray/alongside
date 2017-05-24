@@ -18,36 +18,41 @@ $blue: #47bad9;
 
   &.login {
     width: 350px;
-    background: linear-gradient(to right, #ffbc73 , #ff846e);
-    &:hover {
-      background: linear-gradient(to right, #ff846e , #ffbc73);
-    }
+    background-color: #77e35e;
+    // background: linear-gradient(to right, #ffbc73 , #ff846e);
+    // &:hover {
+    //   background: linear-gradient(to right, #ff846e , #ffbc73);
+    // }
   }
 
   &.home {
-    background: linear-gradient(to right, #72eaff , #ec8eff);
-    &:hover {
-      background: linear-gradient(to right, #ec8eff , #72eaff);
-    }
+    background-color: #dab0e3;
+    // background: linear-gradient(to right, #72eaff , #ec8eff);
+    // &:hover {
+    //   background: linear-gradient(to right, #ec8eff , #72eaff);
+    // }
   }
 
   &.logout {
-    background: linear-gradient(to right, #ff8268 , #ff86cc);
-    &:hover {
-      background: linear-gradient(to right, #ff86cc , #ff8268);
-    }
+    background-color: #77e35e;
+    // background: linear-gradient(to right, #ff8268 , #ff86cc);
+    // &:hover {
+    //   background: linear-gradient(to right, #ff86cc , #ff8268);
+    // }
   }
   &.privacy {
-    background: linear-gradient(to right, #63d3ff , #29ff6c);
-    &:hover {
-      background: linear-gradient(to right, #29ff6c , #63d3ff);
-    }
+    background-color: #8ce3ee;
+    // background: linear-gradient(to right, #63d3ff , #29ff6c);
+    // &:hover {
+    //   background: linear-gradient(to right, #29ff6c , #63d3ff);
+    // }
   }
   &.refresh {
-    background: linear-gradient(to right, #fffa28 , #ffa449);
-    &:hover {
-      background: linear-gradient(to right, #ffa449 , #fffa28);
-    }
+    background-color: #ff9cc8;
+    // background: linear-gradient(to right, #fffa28 , #ffa449);
+    // &:hover {
+    //   background: linear-gradient(to right, #ffa449 , #fffa28);
+    // }
   }
 }
 
@@ -254,17 +259,19 @@ $blue: #47bad9;
 
   &.plus {
     right: 30px;
-    background: linear-gradient(to right, #63d3ff , #29ff6c);
-    &:hover {
-      background: linear-gradient(to right, #29ff6c , #63d3ff);
-    }
+    background-color: #ff8161;
+    // background: linear-gradient(to right, #63d3ff , #29ff6c);
+    // &:hover {
+    //   background: linear-gradient(to right, #29ff6c , #63d3ff);
+    // }
   }
   &.minus {
     right: 105px;
-    background: linear-gradient(to right, #ff8268 , #ff86cc);
-    &:hover {
-      background: linear-gradient(to right, #ff86cc , #ff8268);
-    }
+    background-color: #fff783;
+    // background: linear-gradient(to right, #ff8268 , #ff86cc);
+    // &:hover {
+    //   background: linear-gradient(to right, #ff86cc , #ff8268);
+    // }
   }
 }
 .domain {
