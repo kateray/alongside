@@ -37,40 +37,46 @@ class User < ActiveRecord::Base
       #TODO - Pretty up url
       options = {:query => {:v => '20130214', :sort => 'newestfirst', :oauth_token => self.atoken, :offset => offset.to_s}}
       response = HTTParty.get("https://api.foursquare.com/v2/users/#{foursquare_id.to_s}/historysearch", options)
-      response.parsed_response['response']['checkins']['items'].each do |i|
-        if i['overlaps']
-          unless checkins.find{|c| c.foursquare_id == i['id']}
-            checkin = Checkin.create! do |c|
-              c.user_id = self.id
-              c.foursquare_id = i['id']
-              c.time = i['createdAt'] + i['timeZoneOffset']
-              c.shout = i['shout']
-              c.venue_id = i['venue']['id']
-              c.venue_name = i['venue']['name']
-            end
-            checkins << checkin
-            i['overlaps']['items'].each do |item|
-              if friends.find{|f| f.foursquare_id == item['user']['id'].to_s}
-                friend = friends.find{|f| f.foursquare_id == item['user']['id'].to_s}
-              else
-                friend = Friend.create! do |f|
-                  color = colors[0]
-                  f.color = color
-                  colors = colors.drop(1)
-                  colors << color
-                  f.user_id = self.id
-                  f.foursquare_id = item['user']['id'].to_s
-                  f.name = item['user']['firstName'] + ' ' + (item['user']['lastName'] || '')
-                end
-                friends << friend
+      if response.code == 200
+        response.parsed_response['response']['checkins']['items'].each do |i|
+          if i['overlaps']
+            unless checkins.find{|c| c.foursquare_id == i['id']}
+              checkin = Checkin.create! do |c|
+                c.user_id = self.id
+                c.foursquare_id = i['id']
+                c.time = i['createdAt'] + i['timeZoneOffset']
+                c.shout = i['shout']
+                c.venue_id = i['venue']['id']
+                c.venue_name = i['venue']['name']
               end
-              overlap = Overlap.create! do |o|
-                o.friend_id = friend.id
-                o.checkin_id = checkin.id
+              checkins << checkin
+              i['overlaps']['items'].each do |item|
+                if friends.find{|f| f.foursquare_id == item['user']['id'].to_s}
+                  friend = friends.find{|f| f.foursquare_id == item['user']['id'].to_s}
+                else
+                  friend = Friend.create! do |f|
+                    color = colors[0]
+                    f.color = color
+                    colors = colors.drop(1)
+                    colors << color
+                    f.user_id = self.id
+                    f.foursquare_id = item['user']['id'].to_s
+                    f.name = item['user']['firstName'] + ' ' + (item['user']['lastName'] || '')
+                  end
+                  friends << friend
+                end
+                overlap = Overlap.create! do |o|
+                  o.friend_id = friend.id
+                  o.checkin_id = checkin.id
+                end
               end
             end
           end
         end
+      else
+        self.update_attribute(:last_refreshed_error, response.code)
+        puts "error code #{response.code}"
+        break
       end
     end
 
