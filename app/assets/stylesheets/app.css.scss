@@ -13,11 +13,8 @@ $blue: #47bad9;
   width: 90px;
   height: 30px;
   cursor: pointer;
-  display: inline-block;
+  float: right;
   text-decoration: none;
-  img {
-    margin-bottom: -5px;
-  }
 
   &.login {
     width: 350px;
@@ -54,6 +51,35 @@ $blue: #47bad9;
   }
 }
 
+.bg-image {
+  height: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.small-twitter {
+  width: 30px;
+  height: 20px;
+  display: inline-block;
+  margin-bottom: -5px;
+  background-image: image-url('twitter-small.png');
+}
+.refresh-image {
+  background-image: image-url('refresh.png');
+}
+.home-image {
+  background-image: image-url('home.png');
+}
+.lock-image {
+  background-image: image-url('lock.png');
+}
+.unlock-image {
+  background-image: image-url('unlock.png');
+}
+.logout-image {
+  background-image: image-url('exit.png');
+}
+
+
 .year-tick {
   position: fixed;
   top: 10px;
@@ -62,7 +88,7 @@ $blue: #47bad9;
 }
 
 .privacy-container {
-  padding-top: 15px;
+  padding-top: 45px;
   &.hidden {
     display: none;
   }

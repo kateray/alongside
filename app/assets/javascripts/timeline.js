@@ -287,9 +287,9 @@ Chart.prototype.togglePrivacy = function(){
 }
 
 Chart.prototype.updatePrivacyButton = function(){
-  var symbol = this.secret ? "<img src='/assets/lock.png' />" : "<img src='/assets/unlock.png' />";
+  var symbol = this.secret ? "<div class='lock-image bg-image' />" : "<div class='unlock-image bg-image' />";
   var text = this.secret ? "make public" : "make private";
-  var privacyMessage = this.secret ? "This page is private right now." : "This page is public. Share it! <a href="+this.tweet_url+" target='_blank'><img src='/assets/twitter-small.png' /></a>";
+  var privacyMessage = this.secret ? "This page is private right now." : "This page is public. Share it! <a href="+this.tweet_url+" target='_blank' class='bg-image small-twitter'></a>";
 
   if (this.secret || this.single) {
     d3.selectAll('.big_text, #reconnect').attr("style", "display:none")
@@ -321,32 +321,32 @@ Chart.prototype.drawNav = function(){
     .attr("class", "nav")
 
   if (this.current_user) {
-    if (!this.single && this.current_user === this.user_id) {
-      nav.append("div")
-        .attr("class", "nav-button privacy privacy-things")
-        .on("click", _this.togglePrivacy.bind(this));
+    nav.append("a")
+      .attr("href", "/logout")
+      .attr("class", "nav-button logout")
+      .html("<div class='logout-image bg-image' />")
+      .on("mouseover", function(){d3.select(this).html("logout")})
+      .on("mouseleave", function(){d3.select(this).html("<div class='logout-image bg-image' />")})
 
+    if (!this.single && this.current_user === this.user_id) {
       nav.append("a")
         .attr("href", "/loading")
         .attr("class", "nav-button refresh")
-        .html("<img src='/assets/refresh.png' />")
+        .html("<div class='refresh-image bg-image' />")
         .on("mouseover", function(){d3.select(this).html("refresh data")})
-        .on("mouseleave", function(){d3.select(this).html("<img src='/assets/refresh.png' />")})
+        .on("mouseleave", function(){d3.select(this).html("<div class='refresh-image bg-image' />")})
+
+      nav.append("div")
+        .attr("class", "nav-button privacy privacy-things")
+        .on("click", _this.togglePrivacy.bind(this));
     } else {
       nav.append("a")
         .attr("href", "/u/"+this.user_id)
         .attr("class", "nav-button home")
-        .html("<img src='/assets/home.png' />")
+        .html("<div class='home-image bg-image' />")
         .on("mouseover", function(){d3.select(this).html("home")})
-        .on("mouseleave", function(){d3.select(this).html("<img src='/assets/home.png' />")})
+        .on("mouseleave", function(){d3.select(this).html("<div class='home-image bg-image' />")})
     }
-
-    nav.append("a")
-      .attr("href", "/logout")
-      .attr("class", "nav-button logout")
-      .html("<img src='/assets/exit.png' />")
-      .on("mouseover", function(){d3.select(this).html("logout")})
-      .on("mouseleave", function(){d3.select(this).html("<img src='/assets/exit.png' />")})
 
     nav.append("div")
       .attr("class", "privacy-container hidden privacy-things")
