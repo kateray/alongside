@@ -456,7 +456,6 @@ Chart.prototype.findPtforNodeHover = function(date, line, index){
 
   // The distance between the two points
   var dy = y2-y1;
-  console.log(`the radius of the circle is ${dy}`)
   // The center of the circle is halfway between the two points
   var halfdy = dy/2
   var midY = halfdy + y1;
