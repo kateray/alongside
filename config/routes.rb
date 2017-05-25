@@ -1,6 +1,14 @@
+class AdminConstraint
+  def matches?(request)
+    return false unless request.cookie_jar['user_credentials'].present?
+    user = User.find_by_persistence_token(request.cookie_jar['user_credentials'].split(':')[0])
+    user && user.god?
+  end
+end
+
 Rails.application.routes.draw do
   require 'sidekiq/web'
-  mount Sidekiq::Web => '/sidekiq'
+  mount Sidekiq::Web => '/sidekiq', :constraints => AdminConstraint.new
 
   resources :users, :path => "u"
   get '/f/:friend_id' => 'users#friends'
