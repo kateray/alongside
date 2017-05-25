@@ -114,6 +114,15 @@ Chart.prototype.setupDefs = function(){
   filter.append("feComposite")
     .attr("in", "SourceGraphic");
 
+  var friendLabelFilter = defs.append("filter")
+    .attr("id", "gray-background")
+    .attr("x", "0%")
+    .attr("width", "100%");
+  friendLabelFilter.append("feFlood")
+    .attr("flood-color", "rgba(255, 255, 255, 0.820)");
+  friendLabelFilter.append("feComposite")
+    .attr("in", "SourceGraphic");
+
   var rainbow = defs.append("linearGradient")
     .attr("id", "rainbow-gradient")
     .attr("x2", "0%")
@@ -175,10 +184,8 @@ Chart.prototype.setupDefs = function(){
 
 Chart.prototype.calculatePathFromPts = function(source, target, dir) {
   var ending = this.x(target[0]) + "," + this.y(target[1]);
-  var dx = this.x(target[0]) - this.x(source[0]);
   var dy = this.y(target[1]) - this.y(source[1]);
-  var dr = Math.sqrt(dx * dx + dy * dy);
-  return "A"+ dr + "," + dr + " 0 0,"+dir+" " + ending;
+  return "A"+ dy + "," + dy + " 0 0,"+dir+" " + ending;
 }
 
 Chart.prototype.valueline = function(d){
@@ -403,7 +410,7 @@ Chart.prototype.drawAxis = function(){
     );
 }
 
-Chart.prototype.showVenueInfo = function(showNode, d){
+Chart.prototype.showVenueInfo = function(showNode){
   var _this = this;
 
   var label = showNode.append("g").attr("class", "label");
@@ -414,25 +421,71 @@ Chart.prototype.showVenueInfo = function(showNode, d){
     .attr("x", function(d) { return _this.x(3); })
     .attr("y", function(d) { return _this.y(d.date); })
     .style("filter", "url(#yellow-highlight)");
-
-  if (d) {
-    var labelFriends = label.append("text")
-      .attr("class", "label-friends")
-      .attr("text-anchor", "end")
-      .attr("transform", "translate(-20,0)")
-      .attr("x", function(d) { return _this.x(3); })
-      .attr("y", function(d) { return _this.y(d.date); })
-    labelFriends.attr("y", _this.y(d.date) - (d.friends.length*16)/2 - 8);
-    for (var i=0;i<d.friends.length;i++) {
-      labelFriends.append("tspan")
-        .attr("class", "friend-label")
-        .attr("x", _this.x(3))
-        .attr("dy", "16px")
-        .attr("fill", d.friends[i].color)
-        .text(d.friends[i].name)
-    }
-  }
 }
+Chart.prototype.findPtforNodeHover = function(date, line, index){
+  // Find the pixel coordinates of the node using our current y scale
+  var ptY = this.y(date);
+  // Choose a distance from the node so that names never overlap
+  // Have the distances alternate below and above the node to spread them out
+  var dist = index%2 === 0 ? index*(-25) - 40 : index*25 +40;
+  // Convert the pixels back to dates so that we can find the right arc
+  var dateY = Number(this.y.invert(ptY+dist))
+  // If our new target is before first checkin or after last, we won't have an arc
+  // So reverse the direction of that distance
+  if ( dateY > line.stops[line.stops.length-1][1] || dateY < line.stops[0][1]) {
+    ptY = ptY-dist;
+    dateY = Number(this.y.invert(ptY))
+  } else {
+    ptY = ptY+dist;
+  }
+
+  // Find the correct arc by iterating through stops until one is after our target
+  var y1, y2;
+  var i = 0;
+  for (let s of line.stops) {
+    y2 = s[1];
+    if (dateY < y2){
+      break;
+    }
+    i++;
+  }
+  y1 = line.stops[i-1][1];
+  // Put the points back into pixels for remainder
+  y1 = this.y(y1)
+  y2 = this.y(y2)
+
+  // The distance between the two points
+  var dy = y2-y1;
+  console.log(`the radius of the circle is ${dy}`)
+  // The center of the circle is halfway between the two points
+  var halfdy = dy/2
+  var midY = halfdy + y1;
+  // The y length of our triangle is from the circle center to our target y
+  var yLength = midY - ptY;
+  // Use pythagorean theorem to get length of x from the center
+  // dy is the radius of the cirle (see Chart.prototype.calculatePathFromPts)
+  var xLength = Math.sqrt((dy*dy)-(yLength*yLength))
+  // Now use pythagorean theorem to get length of x from x-axis to center
+  var xToCenter = Math.sqrt((dy*dy)-(halfdy*halfdy))
+  // If the arc is from the right side of the circle, the center has a more negative x
+  // and we want the highest-x intersection
+  if (line.friend.positive) {
+    var ptX = this.x(3) - xToCenter + xLength;
+  } else {
+    var ptX = this.x(3) + xToCenter - xLength;
+  }
+
+  // Now just add the label to the right spot
+  this.element.append("text")
+    .attr("class", 'friend-label')
+    .style("filter", "url(#gray-background)")
+    .text(line.friend.name)
+    .attr("text-anchor", "middle")
+    .attr("fill", line.friend.color)
+    .attr("x", ptX)
+    .attr("y", ptY)
+}
+
 Chart.prototype.highlightNode = function(d){
   if (this.single) {
     return;
@@ -440,26 +493,31 @@ Chart.prototype.highlightNode = function(d){
   this.element.selectAll(".line-segment, .point").attr("opacity", "0.3")
   var showNode = this.node.filter(function(p) { return p.foursquare_id === d.foursquare_id });
   showNode.select(".point").attr("opacity", "1");
-  this.showVenueInfo(showNode, d)
+  this.showVenueInfo(showNode)
   var selectedLines = this.element.selectAll(".line-segment").filter(function(l) {return d.friends.indexOf(l.friend) !== -1 });
   selectedLines.attr("opacity", "1").style("stroke-width", "3px")
+  var lineData = selectedLines.data()
+  for (var i=0;i<lineData.length;i++) {
+    this.findPtforNodeHover(d.date, lineData[i], i)
+  }
 }
 Chart.prototype.unHighlightNode = function(d){
   if (this.single) {
     return;
   }
-  this.element.selectAll(".label").remove()
+  this.element.selectAll(".label, .friend-label").remove()
   this.element.selectAll(".line-segment").attr("opacity", "1").style("stroke-width", "1px");
   this.element.selectAll(".point").attr("opacity", "1");
 }
 Chart.prototype.highlightLine = function(d){
   this.element.append("text")
     .attr("class", "name-card")
+    .style("filter", "url(#gray-background)")
     .text(d.friend.name)
     .attr("text-anchor", "end")
     .attr("fill", d.friend.color)
-    .attr("x", function(d) { return d3.event.pageX-12 })
-    .attr("y", function(d) { return d3.event.pageY-6 });
+    .attr("x", function(d) { return d3.event.pageX+10 })
+    .attr("y", function(d) { return d3.event.pageY-15 });
   if (this.single) {
     return;
   }
