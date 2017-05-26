@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery
   helper_method :current_user_session, :current_user
-  before_filter :add_www_subdomain
+  # before_filter :add_www_subdomain
 
 
   def login_required
@@ -21,14 +21,14 @@ class ApplicationController < ActionController::Base
     @current_user = current_user_session && current_user_session.user
   end
 
-  private
-  def add_www_subdomain
-    if Rails.env.production?
-      unless /^www/.match(request.host)
-        redirect_to("#{request.protocol}x.com#{request.request_uri}",
-                    :status => 301)
-      end
-    end
-  end
+  # private
+  # def add_www_subdomain
+  #   if Rails.env.production?
+  #     unless /^www/.match(request.host)
+  #       redirect_to("#{request.protocol}x.com#{request.request_uri}",
+  #                   :status => 301)
+  #     end
+  #   end
+  # end
 
 end

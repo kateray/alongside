@@ -14,4 +14,5 @@
 /log/*.log
 /tmp
 /latest.dump
+/latest.dump.*
 /dump.rdb
