@@ -191,7 +191,9 @@ $blue: #47bad9;
 .line-segment {
   cursor: pointer;
   fill: none;
-
+  &.lightened {
+    opacity: 0.3;
+  }
   &.hidden {
     opacity: 0;
   }
@@ -207,6 +209,9 @@ $blue: #47bad9;
   stroke-width: 2px;
   // width: 10px;
   // height: 10px;
+  &.lightened {
+    opacity: 0.3;
+  }
   &.hidden {
     opacity: 0;
   }

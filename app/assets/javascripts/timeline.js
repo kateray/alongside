@@ -58,7 +58,6 @@ var Chart = function(opts) {
   this.tweet_url = opts.tweet_url;
   this.allFriends = opts.single === false ? true : false;
   this.zoomStartPoint = null;
-
   this.draw();
 }
 
@@ -84,13 +83,13 @@ Chart.prototype.draw = function(){
   })
 
   var _this = this;
-  setInterval(function() {
+  d3.timer(function() {
     if ( didScroll ) {
       didScroll = false;
       var year = _this.y.invert(window.pageYOffset).getFullYear();
       d3.select(".year-tick").html(year)
     }
-  }, 100);
+  }, 500);
 }
 
 Chart.prototype.createScales = function(){
@@ -215,7 +214,7 @@ Chart.prototype.drawLines = function(){
     .data(this.data.lines)
     .enter().append("path")
     .attr("class", "line-segment")
-    .attr("stroke-width", function(d) {return _this.single ? '3px' : '1px'})
+    .attr("stroke-width", function(d) {return _this.single ? '4px' : '1px'})
     .attr('stroke', function(d) { return d.friend.color; })
     .attr("d", _this.valueline.bind(_this));
 
@@ -489,12 +488,12 @@ Chart.prototype.highlightNode = function(d){
   if (this.single) {
     return;
   }
-  this.element.selectAll(".line-segment, .point").attr("opacity", "0.3")
+  this.element.selectAll(".point").classed("lightened", true)
   var showNode = this.node.filter(function(p) { return p.foursquare_id === d.foursquare_id });
-  showNode.select(".point").attr("opacity", "1");
+  showNode.select(".point").classed("lightened", false);
   this.showVenueInfo(showNode)
   var selectedLines = this.element.selectAll(".line-segment").filter(function(l) {return d.friends.indexOf(l.friend) !== -1 });
-  selectedLines.attr("opacity", "1").style("stroke-width", "3px")
+  selectedLines.style("stroke-width", "4px")
   var lineData = selectedLines.data()
   for (var i=0;i<lineData.length;i++) {
     this.findPtforNodeHover(d.date, lineData[i], i)
@@ -505,8 +504,9 @@ Chart.prototype.unHighlightNode = function(d){
     return;
   }
   this.element.selectAll(".label, .friend-label").remove()
-  this.element.selectAll(".line-segment").attr("opacity", "1").style("stroke-width", "1px");
-  this.element.selectAll(".point").attr("opacity", "1");
+  var selectedLines = this.element.selectAll(".line-segment").filter(function(l) {return d.friends.indexOf(l.friend) !== -1 });
+  selectedLines.style("stroke-width", "1px");
+  this.element.selectAll(".point").classed("lightened", false);
 }
 Chart.prototype.highlightLine = function(d){
   this.element.append("text")
@@ -520,20 +520,21 @@ Chart.prototype.highlightLine = function(d){
   if (this.single) {
     return;
   }
-  this.element.selectAll(".line-segment, .point").attr("opacity", "0.3")
+  this.element.selectAll(".point").classed("lightened", true);
   var showLine = this.element.selectAll(".line-segment").filter(function(l) { return l.friend.foursquare_id === d.friend.foursquare_id });
-  showLine.attr("opacity", "1").style("stroke-width", "3px");
+  showLine.style("stroke-width", "4px");
   var selectedNodes = this.node.filter(function(l) { return l.friends.indexOf(d.friend) !== -1 });
   this.showVenueInfo(selectedNodes)
-  selectedNodes.select(".point").attr("opacity", "1");
+  selectedNodes.select(".point").classed("lightened", false);
 }
 Chart.prototype.unHighlightLine = function(d){
   this.element.selectAll('.name-card').remove();
   if (this.single) {
     return;
   }
-  this.element.selectAll(".line-segment").attr("opacity", "1").style("stroke-width", "1px");
-  this.element.selectAll(".point").attr("opacity", "1");
+  var showLine = this.element.selectAll(".line-segment").filter(function(l) { return l.friend.foursquare_id === d.friend.foursquare_id });
+  showLine.style("stroke-width", "1px");
+  this.element.selectAll(".point").classed("lightened", false);
   this.element.selectAll(".label").remove();
 }
 Chart.prototype.selectLine = function(d){
@@ -543,7 +544,7 @@ Chart.prototype.selectLine = function(d){
       window.history.pushState(null, null, "/u/" + this.user_id)
       this.single = false;
       this.drawNav();
-      this.element.selectAll(".line-segment").attr("opacity", "1").style("stroke-width", "1px");
+      this.element.selectAll(".line-segment").classed("hidden", false).style("stroke-width", "1px");
       this.element.selectAll(".point").classed("hidden", false)
       this.element.selectAll(".line-segment-overlay").attr("pointer-events", "auto")
       d3.selectAll(".label, .back-button, .share-friend-message").remove();
@@ -551,10 +552,10 @@ Chart.prototype.selectLine = function(d){
       window.history.pushState(null, null, "/f/" + d.friend.url_id)
       this.single = true;
       this.drawNav();
-      this.element.selectAll(".line-segment").attr("opacity", "0")
+      this.element.selectAll(".line-segment").classed("hidden", true)
       this.element.selectAll(".point").classed("hidden", true)
       this.element.selectAll(".line-segment-overlay").attr("pointer-events", "none")
-      this.element.selectAll(".line-segment").filter(function(l) { return l.friend.foursquare_id === d.friend.foursquare_id }).attr("opacity", "1").style("stroke-width", "3px");
+      this.element.selectAll(".line-segment").filter(function(l) { return l.friend.foursquare_id === d.friend.foursquare_id }).classed("hidden", false).style("stroke-width", "4px");
       this.element.selectAll(".line-segment-overlay").filter(function(l) { return l.friend.foursquare_id === d.friend.foursquare_id }).attr("pointer-events", "auto");
       var selectedNodes = this.node.filter(function(l) { return l.friends.indexOf(d.friend) !== -1 });
       this.showVenueInfo(selectedNodes)
