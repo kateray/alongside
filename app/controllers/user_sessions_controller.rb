@@ -19,10 +19,14 @@ class UserSessionsController < ApplicationController
   end
 
   def destroy
+    puts '*'*80
+    puts current_user_session.to_json
+    puts current_user.to_json
     if current_user_session
+      puts 'we are here'
       current_user_session.destroy
     end
-    redirect_to '/'
+    redirect_to root_url
   end
 
   protected
