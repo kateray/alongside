@@ -9,6 +9,7 @@ gem 'rails', '4.2.0'
 gem 'sidekiq'
 gem 'pg'
 gem 'foreman'
+gem 'activerecord-session_store'
 
 # Gems used only for assets and not required
 # in production environments by default.

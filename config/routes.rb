@@ -15,7 +15,7 @@ Rails.application.routes.draw do
   resources :user_sessions
   get '/auth/:provider/callback', to: 'user_sessions#callback'
   get '/logout', to: 'user_sessions#destroy'
-  get '/users/privacy', to: 'users#update'
+  post '/users/privacy', to: 'users#update'
   get '/loading', to: 'users#loading'
   get '/overlaps', to: 'users#get_overlaps'
   get '/loser', to: 'users#loser'

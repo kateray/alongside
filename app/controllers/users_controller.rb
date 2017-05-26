@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-
+  skip_before_action :verify_authenticity_token
   before_filter(only: :show) do |controller|
     controller.send(:redirect_from_show, params[:id])
   end
@@ -71,7 +71,7 @@ class UsersController < ApplicationController
     @user = current_user
     puts '*'*80
     puts params
-    if @user.update_attributes(params[:user])
+    if @user.update_attributes(user_params)
       if @user.secret
         @message = 'Page is private'
       else
@@ -114,6 +114,10 @@ class UsersController < ApplicationController
     else
       render file: "#{Rails.root}/public/404.html", layout: false, status: 404
     end
+  end
+
+  def user_params
+    params.require(:user).permit(:secret)
   end
 
 end

@@ -6,7 +6,7 @@ class ApplicationController < ActionController::Base
 
   def login_required
     unless current_user
-      render 'public/403.html', :status => 403, :layout => false
+      render file: "#{Rails.root}/public/403.html", layout: false, status: 403
       return false
     end
   end
@@ -19,16 +19,6 @@ class ApplicationController < ActionController::Base
   def current_user
     return @current_user if defined?(@current_user)
     @current_user = current_user_session && current_user_session.user
-  end
-
-  def handle_unverified_request
-    # raise an exception
-    fail ActionController::InvalidAuthenticityToken
-    # or destroy session, redirect
-    if current_user_session
-      current_user_session.destroy
-    end
-    redirect_to root_url
   end
 
   private
