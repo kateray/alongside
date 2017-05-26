@@ -21,6 +21,7 @@ class UserSessionsController < ApplicationController
   def destroy
     puts '*'*80
     puts current_user_session.to_json
+    puts '@'*80
     puts current_user.to_json
     if current_user_session
       puts 'we are here'
