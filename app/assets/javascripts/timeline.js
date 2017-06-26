@@ -189,14 +189,19 @@ Chart.prototype.calculatePathFromPts = function(source, target, dir) {
 
 Chart.prototype.valueline = function(d){
   var dir = d.friend.positive ? '1' : '0';
-  var starting = this.x(3) + "," + this.y(this.top-1000000000000);
-  var pathValue = "M"+starting+this.calculatePathFromPts([3,this.top-1000000000000], d.stops[0], dir);
+  var proportion = (this.height*7000) + 3000000000;
+  var startingProportion = (d.stops[0][1] - this.top)/proportion;
+  var endingProportion = (this.bottom - d.stops[d.stops.length-1][1])/proportion;
+  var startingX = d.friend.positive ? 3 + startingProportion : 3 - startingProportion;
+  var endingX = d.friend.positive ? 3 + endingProportion : 3 - endingProportion;
+  var starting = this.x(startingX) + "," + this.y(this.top);
+  var pathValue = "M "+starting+"L"+this.x(d.stops[0][0])+" "+this.y(d.stops[0][1])+" ";
   for (var i=0;i<d.stops.length-1;i++){
     var source = d.stops[i];
     var target = d.stops[i+1];
     pathValue = pathValue + this.calculatePathFromPts(source, target, dir);
   }
-  pathValue = pathValue + this.calculatePathFromPts(d.stops[d.stops.length-1], [3,this.bottom+1000000000000], dir);
+  pathValue = pathValue +" L"+this.x(endingX)+" "+this.y(this.bottom);
   return pathValue;
 }
 
@@ -520,9 +525,9 @@ Chart.prototype.highlightLine = function(d){
   if (this.single) {
     return;
   }
-  this.element.selectAll(".point").classed("lightened", true);
+  this.element.selectAll(".point, .line-segment").classed("lightened", true);
   var showLine = this.element.selectAll(".line-segment").filter(function(l) { return l.friend.foursquare_id === d.friend.foursquare_id });
-  showLine.style("stroke-width", "4px");
+  showLine.style("stroke-width", "4px").classed("lightened", false);
   var selectedNodes = this.node.filter(function(l) { return l.friends.indexOf(d.friend) !== -1 });
   this.showVenueInfo(selectedNodes)
   selectedNodes.select(".point").classed("lightened", false);
@@ -534,7 +539,7 @@ Chart.prototype.unHighlightLine = function(d){
   }
   var showLine = this.element.selectAll(".line-segment").filter(function(l) { return l.friend.foursquare_id === d.friend.foursquare_id });
   showLine.style("stroke-width", "1px");
-  this.element.selectAll(".point").classed("lightened", false);
+  this.element.selectAll(".point, .line-segment").classed("lightened", false);
   this.element.selectAll(".label").remove();
 }
 Chart.prototype.selectLine = function(d){
